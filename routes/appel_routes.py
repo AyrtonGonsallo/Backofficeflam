@@ -14,7 +14,6 @@ API_BASE_URL = os.getenv('API_BASE_URL')
 
 
 
-
 @bp.route('/ajouter_appel', methods=['GET', 'POST'])
 def ajouter_appel():
     user = session.get('user')
@@ -124,4 +123,22 @@ def supprimer_appel(appel_id,cours_id,adherent_id,liste_des_appels_par_cours):
         return redirect(url_for('adherents.liste_des_appels_par_cours', cours_id=cours_id))  # Redirection vers la liste des cours
     else:
         return redirect(url_for('adherents.fiche_adherent', adherent_id=adherent_id))  # Redirection vers la liste des cours
+
+
+@bp.route('/supprimer_appel_par_date_cours/<int:cours_id>/<date>', methods=['GET'])
+def supprimer_appel_par_date_cours(cours_id, date):
+    try:
+        # DELETE vers l'API
+        response = requests.delete(
+            f'{API_BASE_URL}/api/adherents/delete_appels_by_cours_and_date',
+            json={'coursId': cours_id, 'date': date},
+            timeout=5
+        )
+        response.raise_for_status()
+        flash('Appels supprimés avec succès !', 'success')
+    except requests.RequestException as e:
+        flash(f'Erreur lors de la suppression des appels : {e}', 'danger')
+
+    # ✅ Redirection en dehors du try/except, toujours exécutée
+    return redirect(url_for('adherents.liste_des_appels_par_cours', cours_id=cours_id))
 

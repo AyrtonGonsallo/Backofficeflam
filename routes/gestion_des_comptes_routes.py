@@ -92,7 +92,7 @@ def ajouter_utilisateur():
         dojos = []
 
         # Remplir les choices dynamiquement
-    form.dojoId.choices = [(int(dojo['id']), dojo['nom']) for dojo in dojos]
+    form.dojos.choices = [(int(dojo['id']), dojo['nom']) for dojo in dojos]
 
 
     if form.validate_on_submit():
@@ -102,7 +102,7 @@ def ajouter_utilisateur():
         email = form.email.data
         mot_de_passe = form.mot_de_passe.data
         role_id = form.role.data
-        dojoId = form.dojoId.data
+        dojos = form.dojos.data
 
         # envoyer post a http://localhost:3000/api/auth/add_user
         payload = {
@@ -111,7 +111,7 @@ def ajouter_utilisateur():
             'email': email,
             'password': mot_de_passe,
             'roleId': role_id,
-            'dojoId': dojoId,
+            'dojos': dojos,
         }
         data=None
 
@@ -156,7 +156,7 @@ def modifier_utilisateur(user_id):
         dojos = []
 
         # Remplir les choices dynamiquement
-    form2.dojoId.choices = [(int(dojo['id']), dojo['nom']) for dojo in dojos]
+    form2.dojos.choices = [(int(dojo['id']), dojo['nom']) for dojo in dojos]
 
     # Récupération de l'utilisateur à modifier
     try:
@@ -170,26 +170,31 @@ def modifier_utilisateur(user_id):
         flash("Impossible de charger l'utilisateur.", "danger")
         return redirect(url_for('gestion_des_comptes.gestion_des_comptes'))  # ou autre page d'erreur
 
-    # Remplir le formulaire avec les données existantes uniquement en GET
+    # Affichage du formulaire en GET
     if request.method == 'GET':
+        # Remplir les choix des dojos
+        form2.dojos.choices = [(d['id'], d['nom']) for d in dojos]
+
+        selected_dojos = [d['id'] for d in utilisateur.get('Dojos', [])]
+
         form_data = {
             'nom': utilisateur.get('nom', ''),
             'prenom': utilisateur.get('prenom', ''),
             'email': utilisateur.get('email', ''),
-            'role': utilisateur.get('Role', {}).get('id') if utilisateur.get('Role') else None,
-            'dojoId': utilisateur.get('Dojo', {}).get('id') if utilisateur.get('Dojo') else ''
+            'role': utilisateur.get('Role', {}).get('id'),
+            'dojos': selected_dojos,
         }
 
         form2.process(data=form_data)
 
-    # Soumission du formulaire
+    # Soumission POST
     if form2.validate_on_submit():
         payload = {
             'nom': form2.nom.data,
             'prenom': form2.prenom.data,
             'email': form2.email.data,
             'roleId': form2.role.data,
-            'dojoId': form2.dojoId.data,
+            'dojos': form2.dojos.data
         }
 
         try:

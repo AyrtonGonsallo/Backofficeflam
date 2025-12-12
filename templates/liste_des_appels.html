@@ -14,6 +14,7 @@
                 </div>
                 <div style="align-items: center;display: flex;justify-content: center;">
                   <a href="{{ url_for('adherents.ajouter_adherent') }}" class="d-none btn btn-dark">Ajouter un adhérent</a>
+
                 </div>
               </div>
 
@@ -59,8 +60,21 @@
                         <td>{{ u.prenom }}</td>
                         <td>{{ u.categorie_age }}</td>
                         <td>{{ u.Dojo.nom }}</td>
-                        <td>{{ u.date_inscription[8:10] }}/{{ u.date_inscription[5:7] }}/{{ u.date_inscription[0:4] }}</td>
-                        <td>{{ u.telephone }}</td>
+                        <td>
+                          {% if u.date_inscription %}
+                            {{ u.date_inscription[8:10] }}/{{ u.date_inscription[5:7] }}/{{ u.date_inscription[0:4] }}
+                          {% else %}
+                            -
+                          {% endif %}
+                        </td>
+
+                        <td>
+                            {% if u.telephone %}
+                                {{ u.telephone }}
+                            {% else %}
+                                -
+                              {% endif %}
+                        </td>
 
                         <td>
                             <a href="{{ url_for('adherents.fiche_adherent', adherent_id=u.id) }}" class="btn btn-link">Fiche</a>
@@ -93,6 +107,23 @@
                 {% endfor %}
          </ul>
  {% endif %}
+
+         <div class="row">
+             <div class="col-2">
+                 <button id="showAjouterAppelFormBtn" class="btn btn-dark">Faire l'appel</button>
+             </div>
+         </div>
+
+
+        <form id="dateAjouterAppelForm"  method="get"
+              action="{{ url_for('adherents.liste_des_appels_par_cours', cours_id=cours.id) }}">
+            <div class="form-group">
+                <label for="dateInput">Sélectionnez la date :</label>
+                <input type="date" name="date_du_cours_a_ajouter" id="dateInput" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Ajouter</button>
+        </form>
+
         </div>
      <div class="col-2">
      </div>

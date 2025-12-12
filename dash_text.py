@@ -32,13 +32,22 @@ def tableau_de_bord():
     user = session.get('user')
     if not user:
         return redirect(url_for('auth.login'))
-    response = requests.get(f'{API_BASE_URL}/api/statistiques/get_absences_consecutives')
+    response = requests.get(f'{API_BASE_URL}/api/statistiques/get_historique')
     response.raise_for_status()
-    appels = response.json()
-    appels_consecutifs_sorted = sorted(
-        appels,
-        key=lambda x: x['adherent']['nom'].lower() if x.get('adherent') else ""
-    )
+    data = response.json()
+
+    appels_consecutifs_sorted = []
+
+    for adherent_id, info in data.items():
+        adherent = info['adherent']
+        appels_consecutifs_sorted.append({
+            'adherent_id': adherent['id'],
+            'nom': adherent['nom'],
+            'prenom': adherent['prenom'],
+            'dojo': adherent['Dojo']['nom'],
+            'total': info['total']
+        })
+
     response = requests.get(f'{API_BASE_URL}/api/statistiques/presence_semaine_travail')
     response.raise_for_status()
     presence_semaine_travail = response.json() or {}

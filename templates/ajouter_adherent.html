@@ -3,79 +3,83 @@
 {% block title %}Ajouter un adhérent{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
+<div class="row container page-ajout-adh">
+  <div class="col-2"></div>
+  <div class="col-12">
+    <h1 class="center">Ajouter un adhérent</h1>
+    {% from 'bootstrap5/form.html' import render_form %}
 
-        <h1>Ajouter un adhérent</h1>
-         {% from 'bootstrap5/form.html' import render_form %}
-        <form method="POST">
-    {{ form.hidden_tag() }}
+    <form method="POST">
+      {{ form.hidden_tag() }}
+        {% for fieldName, errorMessages in form.errors.items() %}
+            {% for err in errorMessages %}
+                <div class="alert alert-danger">
+                    {{ fieldName }} : {{ err }}
+                </div>
+            {% endfor %}
+        {% endfor %}
 
-    <!-- Nom -->
-    <div class="mb-3">
-      {{ form.nom.label(class="form-label") }}
-      {{ form.nom(class="form-control") }}
-    </div>
+      <!-- Nom + Prénom -->
+      <div class="row">
+        <div class="col-md-6">
+          {{ form.nom(class="form-control", placeholder="Nom") }}
+        </div>
+        <div class="col-md-6">
+          {{ form.prenom(class="form-control", placeholder="Prénom") }}
+        </div>
+      </div>
 
-    <!-- Prénom -->
-    <div class="mb-3">
-      {{ form.prenom.label(class="form-label") }}
-      {{ form.prenom(class="form-control") }}
-    </div>
+      <!-- Email + Téléphone -->
+      <div class="row">
+        <div class="col-md-6">
+          {{ form.email(class="form-control", placeholder="Email") }}
+        </div>
+        <div class="col-md-6">
+          {{ form.telephone(class="form-control", placeholder="Téléphone") }}
+        </div>
+      </div>
 
-    <!-- Email -->
-    <div class="mb-3">
-      {{ form.email.label(class="form-label") }}
-      {{ form.email(class="form-control") }}
-    </div>
+      <!-- Date d'inscription + Dojo -->
+      <div class="row">
+        <div class="col-md-6">
+          {{ form.date_inscription(class="form-control", type="date", placeholder="Date d'inscription") }}
+        </div>
+        <div class="col-md-6">
+          {{ form.dojoId(class="form-select ajouter-add-dojo") }}
+        </div>
+      </div>
 
-    <!-- Téléphone -->
-    <div class="mb-3">
-      {{ form.telephone.label(class="form-label") }}
-      {{ form.telephone(class="form-control") }}
-    </div>
+      <!-- Catégorie d’âge -->
+      <div class="mb-3">
+  <select name="{{ form.categorie_age.name }}" class="form-select" required>
+    <option value="" disabled selected>Catégorie d'âge</option>
+    {% for value, label in form.categorie_age.choices %}
+      <option value="{{ value }}">{{ label }}</option>
+    {% endfor %}
+  </select>
+</div>
 
-    <!-- Date d'inscription -->
-    <div class="mb-3">
-      {{ form.date_inscription.label(class="form-label") }}
-      {{ form.date_inscription(class="form-control", type="date") }}
-    </div>
-
-    <!-- Dojo -->
-    <div class="mb-3">
-      {{ form.dojoId.label(class="form-label") }}
-      {{ form.dojoId(class="form-select") }}
-    </div>
-
-    <!-- Cours (cases à cocher) -->
-    <div class="mb-3">
-      <label class="form-label">{{ form.coursId.label.text }}</label>
-      <div class="form-check">
-        {% for value, label in form.coursId.choices %}
-          <div class="form-check">
+      <!-- Cours -->
+      <div class="">
+         <label class="form-label d-block">Cours</label>
+        <div class="form-check-all">
+          {% for value, label in form.coursId.choices %}
+            {% set class_name = dojo_classes[loop.index0][1] %}
+          <div class="form-check {{class_name}}" >
             <input class="form-check-input" type="checkbox"
                    name="{{ form.coursId.name }}"
                    id="cours_{{ value }}"
                    value="{{ value }}">
             <label class="form-check-label" for="cours_{{ value }}">{{ label }}</label>
           </div>
-        {% endfor %}
-      </div>
-    </div>
-
-      <div class="mb-3">
-  {{ form.categorie_age.label(class="form-label") }}
-  {{ form.categorie_age(class="form-select") }}
-</div>
-
-    <!-- Submit -->
-    <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
-  </form>
+          {% endfor %}
         </div>
-     <div class="col-2">
-     </div>
-</div>
+      </div>
 
+      <!-- Submit -->
+      <button type="submit" class="btn btn-primary" style="float: right;">{{ form.submit.label.text }}</button>
+    </form>
+  </div>
+  <div class="col-2"></div>
+</div>
 {% endblock %}

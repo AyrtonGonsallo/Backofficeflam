@@ -3,16 +3,27 @@
 {% block title %}Modifier un parametre{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
-        <h1>Modifier un dojo</h1>
-         {% from 'bootstrap5/form.html' import render_form %}
-        {{ render_form(form2) }}
-        </div>
-     <div class="col-2">
+ <div class="row container">
+     <div class="col-12">
+        <h1 class="center">Modifier un dojo</h1>
+
+        <form method="POST" class="col-6 grid-col" style="margin:auto;">
+            {{ form2.hidden_tag() }}
+
+            {% for field in form2 %}
+                {% if field.type != 'CSRFToken' and field.type != 'SubmitField' %}
+                    <div class="mb-3" style="max-width: 100%; width: 100%;">
+                        {{ field(class="form-control", placeholder=field.label.text) }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <div class="">
+                {{ form2.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+
      </div>
 </div>
-
 {% endblock %}
+

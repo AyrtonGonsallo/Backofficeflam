@@ -3,16 +3,24 @@
 {% block title %}Modifier un utilisateur{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
-        <h1>Modifier un utilisateur</h1>
-         {% from 'bootstrap5/form.html' import render_form %}
-        {{ render_form(form2) }}
-        </div>
-     <div class="col-2">
+ <div class="row container">
+     <div class="col-12">
+        <h1 class="center">Modifier un utilisateur</h1>
+
+        <form method="POST">
+          {{ form2.hidden_tag() }}
+
+          <div class="grid-col">
+            {% for field in form2 if field.name != 'submit' and field.type != 'HiddenField' %}
+              {{ field(class="form-control", placeholder=field.label.text) }}
+            {% endfor %}
+
+            {{ form2.submit(class="btn btn-primary") }}
+          </div>
+        </form>
+
      </div>
 </div>
 
 {% endblock %}
+

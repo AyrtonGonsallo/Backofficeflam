@@ -3,16 +3,14 @@
 {% block title %}Gestion des dojos{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
-         <div style="border-bottom: black 3px solid; margin-bottom: 50px;">
-              <div style="display:flex;justify-content: space-between;">
+ <div class="row container page-adh">
+     <div class="col-12">
+         <div style="">
+              <div class="flx-ttl">
                 <div class="text-left">
                   <h1>Gestion des dojos</h1>
                 </div>
-                <div style="align-items: center;display: flex;justify-content: center;">
+                <div>
                   <a href="{{ url_for('dojos.ajouter_dojo') }}" class="btn btn-dark">Ajouter un dojo</a>
                 </div>
               </div>
@@ -23,12 +21,12 @@
 
         <form method="get" class="mb-3 d-flex">
             <input type="text" name="search" value="{{ search }}" class="form-control me-2" placeholder="Rechercher...">
-            <button class="btn btn-primary">Rechercher</button>
+            <button class="btn btn-rech">Rechercher</button>
         </form>
 
-          <table class="table table-bordered table-hover">
+          <table class="table-adh table-bordered table-hover">
             <thead>
-                <tr>
+                <tr style="border-top: 0px !important;">
                     {% for col in [ 'nom','liste des cours','professeurs'] %}
                         <th>
                             <a href="?search={{ search }}&sort={{ col }}&direction={{ 'asc' if direction == 'desc' else 'desc' }}">
@@ -45,16 +43,19 @@
 
                         <td>{{ d.nom }}</td>
                         <td>
-                            {% if d.Cours %}
+                            <div style="max-width: 400px;">
+                                {% if d.Cours %}
                                   {% for cours in d.Cours %}
                                     <a href="{{ url_for('cours.modifier_cours', cours_id=cours.id) }}">
                                         {{ cours.jour }} {{cours.heure[:5]}}
                                     </a>
-                                    <br>
+                                    -
                                   {% endfor %}
                             {% else %}
                               Aucun cours
                             {% endif %}
+                            </div>
+
                         </td>
                         <td>
                             {% if d.Utilisateurs %}
@@ -89,8 +90,7 @@
 
 
         </div>
-     <div class="col-2">
-     </div>
+
 </div>
 
 {% endblock %}

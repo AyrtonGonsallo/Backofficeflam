@@ -26,12 +26,28 @@ def cours():
     sort = request.args.get('sort', 'id')
     direction = request.args.get('direction', 'asc')
     page = int(request.args.get('page', 1))
-    per_page = 10
+    per_page = 50
 
     try:
-        response = requests.get(f'{API_BASE_URL}/api/dojo_cours/get_all_cours')
-        response.raise_for_status()
-        cours = response.json()
+
+        dojos = user['dojos']
+        dojo_ids = [d['id'] for d in dojos]
+
+        cours = []
+
+        if user['role'] in ["professeur", "admin"]:
+            # Charger les cours pour chaque dojo
+            for dojo_id in dojo_ids:
+                response = requests.get(f"{API_BASE_URL}/api/dojo_cours/get_all_cours_by_dojo/{dojo_id}")
+                response.raise_for_status()
+                cours += response.json()  # Concatène les cours
+
+        elif user['role'] == "super-admin":
+            response = requests.get(f"{API_BASE_URL}/api/dojo_cours/get_all_cours")
+            response.raise_for_status()
+            cours = response.json()
+
+
 
         # Filtrage (recherche sur nom ou prénom)
         if search:

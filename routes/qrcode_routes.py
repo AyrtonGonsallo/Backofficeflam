@@ -36,8 +36,13 @@ def generation_qrcode():
 
         # Filtrage
         if search:
-            adherents = [c for c in adherents if
-                         search.lower() in c['nom'].lower() or search.lower() in c['prenom'].lower()]
+            term = search.lower()
+            adherents = [
+                c for c in adherents
+                if term in c.get('nom', '').lower()
+                   or term in c.get('prenom', '').lower()
+                   or term in (c.get('Dojo') or {}).get('nom', '').lower()
+            ]
 
         # Tri
         adherents = sorted(

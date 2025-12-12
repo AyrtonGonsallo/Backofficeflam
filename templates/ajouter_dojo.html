@@ -3,16 +3,25 @@
 {% block title %}Ajouter un dojo{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
-        <h1>Ajouter un dojo</h1>
-         {% from 'bootstrap5/form.html' import render_form %}
-        {{ render_form(form) }}
-        </div>
-     <div class="col-2">
-     </div>
-</div>
+<div class="row container page-adh">
+    <div class="col-12">
+        <h1 class="center">Ajouter un dojo</h1>
 
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="row align-items-center justify-content-center" >
+                <div class="col-6">
+                    {{ form.nom(class="form-control", placeholder="Nom") }}
+                </div>
+
+                <div class="col-2">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
 {% endblock %}
+

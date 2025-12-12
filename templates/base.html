@@ -43,9 +43,15 @@
             <li class="nav-item">
             <a class="nav-link" href="/cours">Cours</a>
           </li>
+            {% if user.role != "professeur" %}
             <li class="nav-item">
             <a class="nav-link" href="/dojos">Dojos / Écoles</a>
           </li>
+            <!--
+              <li class="nav-item">
+            <a class="nav-link" href="/professeurs">Professeurs</a>
+          </li>
+          -->
             <li class="nav-item">
             <a class="nav-link" href="/historique_des_emails">Historique des emails</a>
           </li>
@@ -55,12 +61,11 @@
             <li class="nav-item">
             <a class="nav-link" href="/parametres">Paramètres</a>
           </li>
-            <li class="nav-item">
-            <a class="nav-link" href="/professeurs">Professeurs</a>
-          </li>
+
             <li class="nav-item">
             <a class="nav-link" href="/generation_qrcode">QR codes</a>
           </li>
+            {% endif %}
         </ul>
           <!--
         <form class="d-flex">

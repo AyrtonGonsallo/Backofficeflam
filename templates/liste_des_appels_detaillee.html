@@ -29,6 +29,8 @@
                 <div style="align-items: center;display: flex;justify-content: center;">
                   <a href="{{ url_for('appels.ajouter_appel') }}" class="btn btn-dark truc_de_dev">Ajouter un appel</a>
                     <a href="{{ url_for('adherents.liste_des_appels_par_cours', cours_id=cours.id) }}" class="btn btn-dark">Retour à la liste</a>
+                    <a href="{{ url_for('appels.supprimer_appel_par_date_cours',cours_id=cours.id,date=date) }}" class="btn btn-link">Supprimer tous</a>
+
                 </div>
               </div>
 

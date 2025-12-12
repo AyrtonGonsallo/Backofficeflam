@@ -3,32 +3,44 @@
 {% block title %}Ajouter un cours{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
-        <h1>Ajouter un cours</h1>
+ <div class="row container">
+     <div class="col-12">
+        <h1 class="center">Ajouter un cours</h1>
          {% from 'bootstrap5/form.html' import render_form %}
-        <form method="POST" action="">
+
+<form method="POST" action="">
   {{ form.hidden_tag() }}
- <div class="mb-3">
-    {{ form.heure.label(class="form-label") }}
-    {{ form.heure(class="form-control") }}
+
+  <!-- Heure + Jour sur la même ligne -->
+  <div class="row">
+      <div class="mb-3 col-6">
+        {{ form.heure(class="form-control", placeholder="Heure") }}
+      </div>
+
+      <div class="mb-3 col-6">
+        <select name="{{ form.jour.name }}" class="form-select" required>
+            <option value="" disabled selected>Jour</option>
+            {% for value, label in form.jour.choices %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+      </div>
   </div>
 
+  <!-- Dojo avec placeholder -->
   <div class="mb-3">
-    {{ form.jour.label(class="form-label") }}
-    {{ form.jour(class="form-select") }}
+    <select name="{{ form.dojoId.name }}" class="form-select" required>
+        <option value="" disabled selected>Choisir un dojo</option>
+        {% for value, label in form.dojoId.choices %}
+          <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+    </select>
   </div>
 
-  <div class="mb-3">
-    {{ form.dojoId.label(class="form-label") }}
-    {{ form.dojoId(class="form-select") }}
-  </div>
-
+  <!-- Profs (labels conservés) -->
   <div class="mb-3">
     <label class="form-label">{{ form.profsId.label }}</label>
-    <div class="form-check">
+    <div class="form-check-all">
       {% for value, label in form.profsId.choices %}
         <div class="form-check">
           <input class="form-check-input"
@@ -42,9 +54,10 @@
     </div>
   </div>
 
+  <!-- Catégories d’âge (labels conservés) -->
   <div class="mb-3">
     <label class="form-label">{{ form.categorie_age.label }}</label>
-    <div class="form-check">
+    <div class="form-check-all">
       {% for value, label in form.categorie_age.choices %}
         <div class="form-check">
           <input class="form-check-input"
@@ -58,12 +71,11 @@
     </div>
   </div>
 
-  <div class="mt-4">
+  <div class="mt-4" style="float:right;">
     {{ form.submit(class="btn btn-primary") }}
   </div>
+
 </form>
-        </div>
-     <div class="col-2">
      </div>
 </div>
 

@@ -1,81 +1,89 @@
 {% extends "base.html" %}
 
-{% block title %}modifier un adhérent{% endblock %}
+{% block title %}Modifier un adhérent{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
-        <h1>Modifier un adhérent</h1>
-         {% from 'bootstrap5/form.html' import render_form %}
-        <form method="POST">
-    {{ form.hidden_tag() }}
+<div class="row container page-ajout-adh">
 
-    <!-- Nom -->
-    <div class="mb-3">
-      {{ form.nom.label(class="form-label") }}
-      {{ form.nom(class="form-control") }}
-    </div>
+  <div class="col-12">
+    <h1 class="text-center mb-4">Modifier un adhérent</h1>
 
-    <!-- Prénom -->
-    <div class="mb-3">
-      {{ form.prenom.label(class="form-label") }}
-      {{ form.prenom(class="form-control") }}
-    </div>
+    <form method="POST">
 
-    <!-- Email -->
-    <div class="mb-3">
-      {{ form.email.label(class="form-label") }}
-      {{ form.email(class="form-control") }}
-    </div>
+      {{ form.hidden_tag() }}
 
-    <!-- Téléphone -->
-    <div class="mb-3">
-      {{ form.telephone.label(class="form-label") }}
-      {{ form.telephone(class="form-control") }}
-    </div>
-
-    <!-- Date d'inscription -->
-    <div class="mb-3">
-      {{ form.date_inscription.label(class="form-label") }}
-      {{ form.date_inscription(class="form-control", type="date") }}
-    </div>
-
-    <!-- Dojo -->
-    <div class="mb-3">
-      {{ form.dojoId.label(class="form-label") }}
-      {{ form.dojoId(class="form-select") }}
-    </div>
-
-    <!-- Cours (cases à cocher) -->
-    <div class="mb-3">
-      <label class="form-label">{{ form.coursId.label.text }}</label>
-      <div class="form-check">
-        {% for value, label in form.coursId.choices %}
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox"
-                   name="{{ form.coursId.name }}"
-                   id="cours_{{ value }}"
-                   value="{{ value }}"
-                   {% if value|int in form.coursId.data %}checked{% endif %}>
-            <label class="form-check-label" for="cours_{{ value }}">{{ label }}</label>
-          </div>
+        {% for fieldName, errorMessages in form.errors.items() %}
+            {% for err in errorMessages %}
+                <div class="alert alert-danger">
+                    {{ fieldName }} : {{ err }}
+                </div>
+            {% endfor %}
         {% endfor %}
-      </div>
-    </div>
-
-     <div class="mb-3">
-  {{ form.categorie_age.label(class="form-label") }}
-  {{ form.categorie_age(class="form-select") }}
-</div>
-
-    <!-- Submit -->
-    <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
-  </form>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.nom(class="form-control", placeholder="Nom") }}
         </div>
-     <div class="col-2">
-     </div>
+        <div class="col-md-6 mb-3">
+          {{ form.prenom(class="form-control", placeholder="Prénom") }}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.email(class="form-control", placeholder="Email") }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.telephone(class="form-control", placeholder="Téléphone") }}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.date_inscription(class="form-control", type="date") }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <select name="{{ form.dojoId.name }}" class="form-select modifier-add-dojo">
+            <option value="" disabled selected>Choisir un dojo</option>
+            {% for value, label in form.dojoId.choices %}
+              <option value="{{ value }}" {% if value == form.dojoId.data %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+      <div class="mb-3">
+  <select name="{{ form.categorie_age.name }}" class="form-select" required>
+    <option value="" disabled selected>Catégorie d'âge</option>
+    {% for value, label in form.categorie_age.choices %}
+      <option {% if value == form.categorie_age.data %}selected{% endif %} value="{{ value }}">{{ label }}</option>
+    {% endfor %}
+  </select>
 </div>
 
+        <div class="col-md-12 mb-3">
+          <label class="form-label d-block">Cours</label>
+          <div class="form-check-all">
+            {% for value, label in form.coursId.choices %}
+              {% set class_name = dojo_classes[loop.index0][1] %}
+              <div class="form-check {{class_name}}">
+                <input class="form-check-input" type="checkbox"
+                       name="{{ form.coursId.name }}"
+                       id="cours_{{ value }}"
+                       value="{{ value }}"
+                       {% if value|int in form.coursId.data %}checked{% endif %}>
+                <label class="form-check-label" for="cours_{{ value }}">{{ label }}</label>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary px-4 py-2" style="float:right;">{{ form.submit.label.text }}</button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

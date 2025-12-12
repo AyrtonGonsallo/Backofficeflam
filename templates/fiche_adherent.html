@@ -3,16 +3,14 @@
 {% block title %}Accueil{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
-         <div style="border-bottom: black 3px solid; margin-bottom: 50px;">
-              <div style="display:flex;justify-content: space-between;">
+ <div class="row container page-adh">
+     <div class="col-12">
+         <div style="border-bottom: black 1px solid; margin-bottom: 50px;">
+              <div class="flx-ttl">
                 <div class="text-left">
                   <h1>Gestion des adhérents</h1>
                 </div>
-                <div style="align-items: center;display: flex;justify-content: center;">
+                <div>
                     #{{adherent.id}}
                 </div>
               </div>
@@ -51,17 +49,19 @@
 
 
         {% if appels %}
-          <table class="table table-bordered table-hover mt-5">
+          <table class="table-adh table-bordered table-hover mt-5">
             <thead>
                 <tr>
                     {% set col_labels2 = {
                         'status': 'Status',
                         'date': 'Date',
+                        'semaine': 'Semaine',
+                        'type': 'Type',
                         'Adherent': "Adhérent",
                         'Cour': "Cours",
                     } %}
 
-                        {% for col in [ 'date','status','Cour'] %}
+                        {% for col in [ 'date','semaine','type','status','Cour'] %}
                         <th>
                             <a href="?search_appels={{ search_appels }}&sort_appels={{ col }}&direction_appels={{ 'asc' if direction_appels == 'desc' else 'desc' }}">
                                 {{ col_labels2[col] |capitalize }}
@@ -75,9 +75,11 @@
                 {% for u in appels %}
                     <tr>
 
-                        <td>{{ u.date[8:10] }}/{{ u.date[5:7] }}/{{ u.date[0:4] }}</td>
+                        <td>{{ u.date[8:10] }}/{{ u.date[5:7] }}/{{ u.date[0:4] }} </td>
+                        <td>{{ u.titre_semaine }} </td>
+                        <td>{{ u.type }} </td>
                         <td>
-                            <a href="{{ url_for('appels.modifier_status_appel', appel_id=u.id,cours_id=u.coursId,adherent_id=u.adherentId,liste_des_appels_par_cours=false,date=2) }}" class="btn btn-link">
+                            <a href="{{ url_for('appels.modifier_status_appel', appel_id=u.id,cours_id=u.coursId,adherent_id=u.adherentId,liste_des_appels_par_cours=false,date=2) }}" class="btn">
                                 {% if u.status %}
                                   ✅
                                 {% else %}
@@ -114,8 +116,6 @@
 
          
 
-     </div>
-     <div class="col-2">
      </div>
 </div>
 

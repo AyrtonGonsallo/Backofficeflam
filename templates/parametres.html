@@ -3,12 +3,10 @@
 {% block title %}Paramètres{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
-         <div style="border-bottom: black 3px solid; margin-bottom: 50px;">
-              <div style="display:flex;justify-content: space-between;">
+ <div class="row container page-adh">
+     <div class="col-12">
+         <div>
+              <div class="flx-ttl">
                 <div class="text-left">
                   <h1>Gestion des paramètres</h1>
                 </div>
@@ -23,10 +21,10 @@
 
         <form method="get" class="mb-3 d-flex">
             <input type="text" name="search" value="{{ search }}" class="form-control me-2" placeholder="Rechercher...">
-            <button class="btn btn-primary">Rechercher</button>
+            <button class="btn btn-rech">Rechercher</button>
         </form>
 
-          <table class="table table-bordered table-hover">
+          <table class="table-adh table-bordered table-hover">
             <thead>
                 <tr>
                     {% for col in [ 'nom','valeur'] %}
@@ -69,7 +67,5 @@
 
 
         </div>
-     <div class="col-2">
-     </div>
 </div>
 {% endblock %}

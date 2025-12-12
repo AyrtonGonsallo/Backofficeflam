@@ -49,5 +49,32 @@ $(document).ready(function () {
     });
   }
 
+    $('#dateAjouterAppelForm').hide();
+    $('#showAjouterAppelFormBtn').click(function(e) {
+    console.log("ajouter cours")
+        e.preventDefault(); // empêche tout comportement par défaut du bouton
+        $('#dateAjouterAppelForm').slideToggle(); // affiche / cache avec animation
+    });
+
+    function filterCours() {
+        let selectedDojo = $('select.ajouter-add-dojo').length
+            ? $('select.ajouter-add-dojo').val()
+            : $('select.modifier-add-dojo').val();
+
+        console.log(selectedDojo)
+
+        // Cacher tous les cours
+        $('.form-check').hide();
+        $('.dojo-'+selectedDojo ).show();
+    }
+
+    // Au chargement si un dojo est déjà pré-sélectionné
+    filterCours();
+
+    // Quand on change de dojo
+    $('select[name="dojoId"]').on('change', filterCours);
+
+
 });
+
 
