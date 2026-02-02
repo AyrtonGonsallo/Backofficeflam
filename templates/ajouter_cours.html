@@ -29,7 +29,7 @@
 
   <!-- Dojo avec placeholder -->
   <div class="mb-3">
-    <select name="{{ form.dojoId.name }}" class="form-select" required>
+    <select name="{{ form.dojoId.name }}" class="form-select ajouter-add-dojo" required>
         <option value="" disabled selected>Choisir un dojo</option>
         {% for value, label in form.dojoId.choices %}
           <option value="{{ value }}">{{ label }}</option>

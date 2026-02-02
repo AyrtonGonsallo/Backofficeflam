@@ -64,7 +64,7 @@ $(document).ready(function () {
         console.log(selectedDojo)
 
         // Cacher tous les cours
-        $('.form-check').hide();
+        $('.form-add .form-check').hide();
         $('.dojo-'+selectedDojo ).show();
     }
 
