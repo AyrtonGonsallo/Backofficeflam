@@ -3,52 +3,60 @@
 {% block title %}Accueil{% endblock %}
 
 {% block content %}
- <div class="row container page-adh">
-     <div class="col-12">
-         <div style="border-bottom: black 1px solid; margin-bottom: 50px;">
-              <div class="flx-ttl">
-                <div class="text-left">
-                  <h1>Gestion des adhérents</h1>
-                </div>
-                <div>
-                    #{{adherent.id}}
-                </div>
-              </div>
 
-         </div>
-
-        {% from 'bootstrap5/table.html' import render_table %}
-        <div class="row">
-             <div class="col-4">
-                 Nom : {{adherent.nom}}<br>
-                 Catégorie d'âge : {{adherent.categorie_age}}<br>
-                 Tel : {{adherent.telephone}}<br>
-                 Dojo : {{adherent.Dojo.nom}}<br>
-             </div>
-            <div class="col-4">
-                Prénom : {{adherent.prenom}}<br>
-                 Email : {{adherent.email}}<br>
-                Cours :
-                {% if adherent.Cours %}
-                      {% for cours in adherent.Cours %}
-                        <a href="{{ url_for('cours.modifier_cours', cours_id=cours.id) }}">
-                            {{ cours.jour }} {{cours.heure[:5]}}</a>
-                        /
-                      {% endfor %}
-                {% else %}
-                  Aucun cours
-                {% endif %}
-             </div>
-            <div class="col-4">
-                {% if adherent.qrcode %}
-                <img src="data:image/png;base64,{{ adherent.qrcode }}" width="200px" alt="QR Code de {{ adherent.nom }}">
-                {% endif %}
-             </div>
-
-        </div>
+<div class="dashboard container-fluid page-adh">
+<div class="col-12">
 
 
-        {% if appels %}
+<div style="border-bottom: black 1px solid; margin-bottom: 50px;">
+<div class="flx-ttl">
+<div class="text-left">
+<h1>Gestion des adhérents</h1>
+</div>
+<div>
+#{{ adherent.id }}
+</div>
+</div>
+</div>
+
+<div class="row g-3 mb-4">
+
+<div class="col-12 col-md-4">
+<div><strong>Nom :</strong> {{ adherent.nom }}</div>
+<div><strong>Catégorie d'âge :</strong> {{ adherent.categorie_age }}</div>
+<div><strong>Tel :</strong> {{ adherent.telephone }}</div>
+<div><strong>Dojo :</strong> {{ adherent.Dojo.nom }}</div>
+</div>
+
+<div class="col-12 col-md-4">
+<div><strong>Prénom :</strong> {{ adherent.prenom }}</div>
+<div><strong>Email :</strong> {{ adherent.email }}</div>
+
+<div>
+<strong>Cours :</strong>
+{% if adherent.Cours %}
+{% for cours in adherent.Cours %}
+<a href="{{ url_for('cours.modifier_cours', cours_id=cours.id) }}">
+{{ cours.jour }} {{ cours.heure[:5] }}
+</a>{% if not loop.last %} / {% endif %}
+{% endfor %}
+{% else %}
+Aucun cours
+{% endif %}
+</div>
+</div>
+
+<div class="col-12 col-md-4 text-center">
+{% if adherent.qrcode %}
+<img src="data:image/png;base64,{{ adherent.qrcode }}"
+class="qr-img"
+alt="QR Code de {{ adherent.nom }}">
+{% endif %}
+</div>
+
+</div>
+
+{% if appels %}
           <table class="table-adh table-bordered table-hover mt-5">
             <thead>
                 <tr>
@@ -114,9 +122,8 @@
 
     {% endif %}
 
-         
 
-     </div>
+</div>
 </div>
 
 {% endblock %}

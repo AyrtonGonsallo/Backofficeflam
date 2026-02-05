@@ -3,27 +3,37 @@
 {% block title %}Modifier un dojo{% endblock %}
 
 {% block content %}
- <div class="row container">
-     <div class="col-12">
-        <h1 class="center">Modifier un dojo</h1>
-         <div class="col-6" style="margin: auto;">
-            {% from 'bootstrap5/form.html' import render_form %}
+<div class="dashboard container-fluid page-adh page-edit-dojo">
+  <div class="col-12">
 
-            <form method="POST">
-              {{ form2.hidden_tag() }}
+    <h1 class="dashboard-section-title text-center mb-4">Modifier un dojo</h1>
 
-              <div style="display: flex; gap: 10px;">
-                {% for field in form2 if field.name != 'submit' and field.type != 'HiddenField' %}
-                  {{ field(class="form-control", placeholder=field.label.text) }}
-                {% endfor %}
+    <form method="POST" class="mx-auto" style="max-width: 700px;">
+      {{ form2.hidden_tag() }}
 
-                {{ form2.submit(class="btn btn-primary") }}
-              </div>
-            </form>
+      <!-- Champs -->
+      <div class="row g-3 mb-4">
+        {% for field in form2 if field.name != 'submit' and field.type != 'HiddenField' %}
+          <div class="">
+            {{ field(
+              class="form-control",
+              placeholder=field.label.text
+            ) }}
+          </div>
+        {% endfor %}
+      </div>
 
-         </div>
-        </div>
+      <!-- Bouton -->
+      <div class="d-flex justify-content-end">
+        <button type="submit"
+                class="btn btn-primary px-4 py-2 d-flex align-items-center gap-2">
+          <i class="bi bi-pencil-square"></i>
+          {{ form2.submit.label.text }}
+        </button>
+      </div>
+
+    </form>
+
+  </div>
 </div>
-
 {% endblock %}
-

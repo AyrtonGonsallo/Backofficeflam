@@ -3,16 +3,16 @@
 {% block title %}Ajouter un parametre{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
-        <h1>Ajouter un parametre</h1>
-         {% from 'bootstrap5/form.html' import render_form %}
+<div class="dashboard container-fluid page-adh">
+  <div class="col-12">
+    <h1 class="dashboard-section-title text-center mb-4">Ajouter un paramètre</h1>
+    {% from 'bootstrap5/form.html' import render_form %}
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
         {{ render_form(form) }}
-        </div>
-     <div class="col-2">
-     </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}

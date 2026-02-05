@@ -1,51 +1,66 @@
 {% extends "base.html" %}
-
 {% block title %}Ajouter un adhérent{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
+<div class="dashboard container-fluid page-adh">
+  <div class="col-12">
+    <h1 class="dashboard-section-title text-center mb-4">Ajouter un appel</h1>
+    {% from 'bootstrap5/form.html' import render_form %}
+    <form method="POST" class="form-add-appel row g-3">
+      {{ form.hidden_tag() }}
 
-        <h1>Ajouter un appel</h1>
-         {% from 'bootstrap5/form.html' import render_form %}
-        <form method="POST">
-    {{ form.hidden_tag() }}
+      <!-- Date d'inscription -->
+      <div class="col-12 col-md-6">
+        {{ form.date.label(class="form-label") }}
+        {{ form.date(class="form-control", type="date") }}
+      </div>
 
+      <!-- Dojo -->
+      <div class="col-12 col-md-6">
+        {{ form.coursId.label(class="form-label") }}
+        {{ form.coursId(class="form-select") }}
+      </div>
 
+      <!-- Adhérent -->
+      <div class="col-12 col-md-6">
+        {{ form.adherentId.label(class="form-label") }}
+        {{ form.adherentId(class="form-select") }}
+      </div>
 
-    <!-- Date d'inscription -->
-    <div class="mb-3">
-      {{ form.date.label(class="form-label") }}
-      {{ form.date(class="form-control", type="date") }}
-    </div>
-
-    <!-- Dojo -->
-    <div class="mb-3">
-      {{ form.coursId.label(class="form-label") }}
-      {{ form.coursId(class="form-select") }}
-    </div>
-
-            <!-- Dojo -->
-    <div class="mb-3">
-      {{ form.adherentId.label(class="form-label") }}
-      {{ form.adherentId(class="form-select") }}
-    </div>
-
-
-
-     <div class="form-check form-switch">
-  {{ form.status.label(class="form-check-label") }}
-  {{ form.status(class="form-check-input") }}
-</div>
-
-    <!-- Submit -->
-    <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
-  </form>
+      <!-- Présence ON/OFF -->
+      <div class="col-12 col-md-6">
+        <label class="form-label">Présence</label><br>
+        <div class="form-check form-switch w-100 d-flex align-items-center justify-content-start ">
+          {{ form.status(class="form-check-input", id="statusSwitch") }}
+          <label class="form-check-label ms-2" for="statusSwitch" id="statusLabel">
+            Absent
+          </label>
         </div>
-     <div class="col-2">
-     </div>
-</div>
+      </div>
 
+      <!-- Submit -->
+      <div class="col-12 text-end mt-4">
+        <button type="submit" class="btn btn-primary btn-submit">
+          Ajouter <i class="bi bi-plus-lg ms-2"></i>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const statusSwitch = document.getElementById('statusSwitch');
+  const statusLabel = document.getElementById('statusLabel');
+
+  // initialisation
+  statusLabel.textContent = statusSwitch.checked ? "Présent" : "Absent";
+
+  // switch dynamique
+  statusSwitch.addEventListener('change', () => {
+    statusLabel.textContent = statusSwitch.checked ? "Présent" : "Absent";
+  });
+</script>
 {% endblock %}

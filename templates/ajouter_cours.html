@@ -3,80 +3,90 @@
 {% block title %}Ajouter un cours{% endblock %}
 
 {% block content %}
- <div class="row container">
-     <div class="col-12">
-        <h1 class="center">Ajouter un cours</h1>
-         {% from 'bootstrap5/form.html' import render_form %}
+<div class="dashboard container-fluid page-adh page-add-cours">
+  <div class="col-12 col-xl-10 mx-auto">
 
-<form method="POST" action="">
-  {{ form.hidden_tag() }}
+    <h1 class="mb-5 text-center">Ajouter un cours</h1>
 
-  <!-- Heure + Jour sur la même ligne -->
-  <div class="row">
-      <div class="mb-3 col-6">
-        {{ form.heure(class="form-control", placeholder="Heure") }}
-      </div>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      
+      {% for fieldName, errorMessages in form.errors.items() %}
+          {% for err in errorMessages %}
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  {{ fieldName }} : {{ err }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+          {% endfor %}
+      {% endfor %}
 
-      <div class="mb-3 col-6">
-        <select name="{{ form.jour.name }}" class="form-select" required>
+      <!-- ===== Ligne principale ===== -->
+      <div class="row g-3 mb-4 align-items-end">
+        <div class="col-12 col-md-4">
+          <label class="form-label">Heure</label>
+          {{ form.heure(class="form-control", placeholder="HH:MM") }}
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label">Jour</label>
+          <select name="{{ form.jour.name }}" class="form-select" required>
             <option value="" disabled selected>Jour</option>
             {% for value, label in form.jour.choices %}
               <option value="{{ value }}">{{ label }}</option>
             {% endfor %}
-        </select>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label">Dojo</label>
+          <select name="{{ form.dojoId.name }}" class="form-select" required>
+            <option value="" disabled selected>Choisir un dojo</option>
+            {% for value, label in form.dojoId.choices %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
       </div>
-  </div>
 
-  <!-- Dojo avec placeholder -->
-  <div class="mb-3">
-    <select name="{{ form.dojoId.name }}" class="form-select ajouter-add-dojo" required>
-        <option value="" disabled selected>Choisir un dojo</option>
-        {% for value, label in form.dojoId.choices %}
-          <option value="{{ value }}">{{ label }}</option>
-        {% endfor %}
-    </select>
-  </div>
-
-  <!-- Profs (labels conservés) -->
-  <div class="mb-3">
-    <label class="form-label">{{ form.profsId.label }}</label>
-    <div class="form-check-all">
-      {% for value, label in form.profsId.choices %}
-        <div class="form-check">
-          <input class="form-check-input"
-                 type="checkbox"
-                 id="profsId_{{ loop.index }}"
-                 name="{{ form.profsId.name }}"
-                 value="{{ value }}">
-          <label class="form-check-label" for="profsId_{{ loop.index }}">{{ label }}</label>
+      <!-- ===== Professeurs ===== -->
+      <div class="mb-4">
+        <label class="form-label mb-2">Professeurs</label>
+        <div class="d-flex flex-wrap gap-2">
+          {% for value, label in form.profsId.choices %}
+            <label class="chip-check">
+              <input type="checkbox"
+                     name="{{ form.profsId.name }}"
+                     value="{{ value }}">
+              <span>{{ label }}</span>
+            </label>
+          {% endfor %}
         </div>
-      {% endfor %}
-    </div>
-  </div>
+      </div>
 
-  <!-- Catégories d’âge (labels conservés) -->
-  <div class="mb-3">
-    <label class="form-label">{{ form.categorie_age.label }}</label>
-    <div class="form-check-all">
-      {% for value, label in form.categorie_age.choices %}
-        <div class="form-check">
-          <input class="form-check-input"
-                 type="checkbox"
-                 id="categorie_age_{{ loop.index }}"
-                 name="{{ form.categorie_age.name }}"
-                 value="{{ value }}">
-          <label class="form-check-label" for="categorie_age_{{ loop.index }}">{{ label }}</label>
+      <!-- ===== Catégories ===== -->
+      <div class="mb-5">
+        <label class="form-label mb-2">Catégories d'âge</label>
+        <div class="d-flex flex-wrap gap-2">
+          {% for value, label in form.categorie_age.choices %}
+            <label class="chip-check">
+              <input type="checkbox"
+                     name="{{ form.categorie_age.name }}"
+                     value="{{ value }}">
+              <span>{{ label }}</span>
+            </label>
+          {% endfor %}
         </div>
-      {% endfor %}
-    </div>
-  </div>
+      </div>
 
-  <div class="mt-4" style="float:right;">
-    {{ form.submit(class="btn btn-primary") }}
-  </div>
+      <!-- ===== Action ===== -->
+      <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary px-4 d-flex align-items-center gap-2">
+          <i class="bi bi-plus-circle"></i>
+          {{ form.submit.label.text }}
+        </button>
+      </div>
 
-</form>
-     </div>
+    </form>
+  </div>
 </div>
-
 {% endblock %}

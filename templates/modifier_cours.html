@@ -3,82 +3,96 @@
 {% block title %}Modifier un cours{% endblock %}
 
 {% block content %}
-<div class="row container page-edit-cours">
-  <div class="col-2"></div>
-
-  <div class="col-sm-8 col-12">
-    <h1 class="text-center mb-4">Modifier un cours</h1>
+<div class="dashboard container-fluid page-adh page-edit-cours">
+  <div class="col-12">
+    <h1 class="dashboard-section-title text-center mb-4">Modifier un cours</h1>
 
     <form method="POST" action="">
       {{ form.hidden_tag() }}
+      
+      {% for fieldName, errorMessages in form.errors.items() %}
+          {% for err in errorMessages %}
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  {{ fieldName }} : {{ err }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+          {% endfor %}
+      {% endfor %}
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
+      <!-- ===== Ligne 1 : Heure, Jour, Dojo ===== -->
+      <div class="row mb-4 g-3">
+        <div class="col-12 col-md-4">
+          <label class="form-label">Heure</label>
           {{ form.heure(class="form-control", placeholder="Heure") }}
         </div>
-        <div class="col-md-6 mb-3">
+
+        <div class="col-12 col-md-4">
+          <label class="form-label">Jour</label>
           <select name="{{ form.jour.name }}" class="form-select" required>
-            <option value="" disabled selected>Jour</option>
+            <option value="" disabled>Jour</option>
             {% for value, label in form.jour.choices %}
-              <option value="{{ value }}" {% if value == form.jour.data %}selected{% endif %}>{{ label }}</option>
+              <option value="{{ value }}" {% if value == form.jour.data %}selected{% endif %}>
+                {{ label }}
+              </option>
             {% endfor %}
           </select>
         </div>
-      </div>
 
-      <div class="row">
-        <div class="col-md-12 mb-3">
-          <select name="{{ form.dojoId.name }}" class="form-select  modifier-add-dojo" required>
-            <option value="" disabled selected>Choisir un dojo</option>
+        <div class="col-12 col-md-4">
+          <label class="form-label">Dojo</label>
+          <select name="{{ form.dojoId.name }}" class="form-select modifier-add-dojo" required>
+            <option value="" disabled>Choisir un dojo</option>
             {% for value, label in form.dojoId.choices %}
-              <option value="{{ value }}" {% if value == form.dojoId.data %}selected{% endif %}>{{ label }}</option>
+              <option value="{{ value }}" {% if value == form.dojoId.data %}selected{% endif %}>
+                {{ label }}
+              </option>
             {% endfor %}
           </select>
         </div>
+      </div>
 
-        <div class="col-md-12 mb-3">
-          <label class="form-label d-block">Professeurs</label>
-          <div class="form-check-all">
-            {% for value, label in form.profsId.choices %}
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox"
-                       id="profsId_{{ loop.index }}"
-                       name="{{ form.profsId.name }}"
-                       value="{{ value }}"
-                       {% if value|int in form.profsId.data %}checked{% endif %}>
-                <label class="form-check-label" for="profsId_{{ loop.index }}">{{ label }}</label>
-              </div>
-            {% endfor %}
-          </div>
+      <!-- ===== Professeurs ===== -->
+      <div class="mb-4">
+        <label class="form-label d-block">Professeurs</label>
+        <div class="d-flex flex-wrap gap-2">
+          {% for value, label in form.profsId.choices %}
+            <label class="chip-check">
+              <input type="checkbox"
+                     name="{{ form.profsId.name }}"
+                     value="{{ value }}"
+                     {% if value|int in form.profsId.data %}checked{% endif %}>
+              <span>{{ label }}</span>
+            </label>
+          {% endfor %}
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-12 mb-3">
-          <label class="form-label d-block">Catégories d'âge</label>
-          <div class="form-check-all">
-            {% for value, label in form.categorie_age.choices %}
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox"
-                       id="categorie_age_{{ loop.index }}"
-                       name="{{ form.categorie_age.name }}"
-                       value="{{ value }}"
-                       {% if value in form.categorie_age.data %}checked{% endif %}>
-                <label class="form-check-label" for="categorie_age_{{ loop.index }}">{{ label }}</label>
-              </div>
-            {% endfor %}
-          </div>
+      <!-- ===== Catégories d'âge ===== -->
+      <div class="mb-4">
+        <label class="form-label d-block">Catégories d'âge</label>
+        <div class="d-flex flex-wrap gap-2">
+          {% for value, label in form.categorie_age.choices %}
+            <label class="chip-check">
+              <input type="checkbox"
+                     name="{{ form.categorie_age.name }}"
+                     value="{{ value }}"
+                     {% if value in form.categorie_age.data %}checked{% endif %}>
+              <span>{{ label }}</span>
+            </label>
+          {% endfor %}
         </div>
       </div>
 
-      <div class="text-center mt-4">
-        <button type="submit" class="btn btn-primary px-4 py-2" style="float:right;">
+      <!-- ===== Submit ===== -->
+      <div class="d-flex justify-content-end mt-4">
+        <button type="submit"
+                class="btn btn-primary px-4 py-2 d-flex align-items-center gap-2">
+          <i class="bi bi-pencil-square"></i>
           {{ form.submit.label.text }}
         </button>
       </div>
+
     </form>
   </div>
-
-  <div class="col-2"></div>
 </div>
 {% endblock %}

@@ -1,52 +1,377 @@
 {% extends "base.html" %}
 
-{% block title %}Accueil{% endblock %}
-
 {% block content %}
 
-<div class="row container page-adh">
-     <div class="col-12">
+<link rel="stylesheet"
+ href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-        <div>
-          <div class="row">
-            <div class="col-12 col-card">
-              <div class="card-b mb-2 mt-2">
-                        <div class="card-header">
-                        Présences par semaines
-                      </div>
-                      <div class="card-body">
+<style>
+.flatpickr-calendar {
+    box-shadow: 0 10px 25px rgba(0,0,0,.15) !important;
+    border: 1px solid #ddd;
+}
 
-                      <div class="accordion" id="accordionExample">
-                            {% for group in group_semaine_travail_appels %}
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="heading{{ group.semaineTravail }}">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ group.semaineTravail }}" aria-expanded="false" aria-controls="collapse{{ group.semaineTravail }}">
-                                            Semaine {{ group.semaineTravail }} ({{ group.dateDebut | datetimeformat }})
-                                        </button>
-                                    </h2>
-                                    <div id="collapse{{ group.semaineTravail }}" class="accordion-collapse collapse" aria-labelledby="heading{{ group.semaineTravail }}" data-bs-parent="#accordionExample">
-                                        <div class="accordion-body text-start">
-                                            Total des appels : {{ group.totalAppels }}<br>
-                                            Total des présences : {{ group.totalPresents }}<br>
-                                            Total des judokas distincts : {{ group.totalJudokasDistincts }}<br>
+#periode { cursor: pointer; }
 
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
+.error-text {
+    color: red;
+    font-size: 13px;
+    display: none;
+}
 
-                    </div>
-            </div>
-          </div>
-        </div>
-     </div>
+.input-error {
+    border: 1px solid red !important;
+}
+</style>
+
+<div class="dashboard container-fluid page-adh">
+
+<div class="card p-4 shadow-sm" style="background: #fff; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,.08);">
+
+<h4 class="mb-4 text-primary">
+    <i class="bi bi-funnel"></i>
+    Filtrer les adhérents
+</h4>
+
+<div class="row g-3 mb-4">
+
+<!-- DOJO -->
+<div class="col-12 col-md-6 col-lg-3">
+<label for="dojoId" class="form-label fw-bold">
+    Dojo
+</label>
+
+<select id="dojoId"
+        class="form-control"
+        title="Sélectionnez un dojo">
+</select>
+
+<div id="errDojo" class="error-text">
+    Veuillez sélectionner un dojo
+</div>
+</div>
+
+
+<!-- ANNÉE -->
+<div class="col-12 col-md-6 col-lg-2">
+<label for="annee" class="form-label fw-bold">
+    Année
+</label>
+
+<select id="annee"
+        class="form-control"
+        title="Choisir une année">
+</select>
+</div>
+
+
+<!-- MOIS -->
+<div class="col-12 col-md-6 col-lg-3">
+<label for="mois" class="form-label fw-bold">
+    Mois
+</label>
+
+<select id="mois"
+        class="form-control"
+        title="Choisir un mois">
+    <option value="">Choisir...</option>
+    <option value="1">Janvier</option>
+    <option value="2">Février</option>
+    <option value="3">Mars</option>
+    <option value="4">Avril</option>
+    <option value="5">Mai</option>
+    <option value="6">Juin</option>
+    <option value="7">Juillet</option>
+    <option value="8">Août</option>
+    <option value="9">Septembre</option>
+    <option value="10">Octobre</option>
+    <option value="11">Novembre</option>
+    <option value="12">Décembre</option>
+</select>
+</div>
+
+
+<!-- PÉRIODE -->
+<div class="col-12 col-md-6 col-lg-3">
+<label for="periode" class="form-label fw-bold">
+    Période
+</label>
+
+<div class="input-group">
+<span class="input-group-text">
+    <i class="bi bi-calendar3"></i>
+</span>
+
+<input type="text"
+       id="periode"
+       class="form-control bg-white"
+       placeholder="Date début → Date fin"
+       title="Choisir une période">
+</div>
+
+<div id="errPeriode" class="error-text">
+    Choisir une période ou une année
+</div>
+</div>
+
+
+<!-- LIMITE (PLUS PROCHE) -->
+<div class="col-12 col-md-6 col-lg-2">
+<label for="limit" class="form-label fw-bold">
+    Limite
+</label>
+
+<input type="number"
+       id="limit"
+       value="15"
+       min="1"
+       class="form-control">
+</div>
 
 </div>
 
 
+<!-- BOUTON ROUGE -->
+<div class="row mt-4">
+<div class="col-12 text-center">
+
+<button class="btn btn-danger px-5 fw-bold"
+        onclick="generer()">
+    GÉNÉRER LA LISTE
+</button>
+
+</div>
+</div>
+
 </div>
 
 
+<!-- TABLE -->
+<div class="table-responsive mt-4">
+<table class="table table-bordered table-striped">
+
+<thead class="table-dark">
+<tr>
+    <th>Nom</th>
+    <th>Prénom</th>
+    <th>Date d'inscription</th>
+    <th>Catégorie</th>
+    <th>Dojo</th>
+    <th>Absences</th>
+
+</tr>
+</thead>
+
+<tbody id="resultats">
+<tr>
+<td colspan="5" class="text-center text-muted">
+    Sélectionnez un dojo pour commencer.
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+
+</div>
+
+
+<link rel="stylesheet"
+ href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+const API = "{{ API_BASE_URL }}";
+let periodePicker = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    initCalendrier();
+    chargerAnnees();
+    chargerDojos();
+    initMoisListener();
+});
+
+
+// ========== CALENDRIER ==========
+function initCalendrier() {
+periodePicker = flatpickr("#periode", {
+    mode: "range",
+    dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d/m/Y",
+    position: "above",
+    static: true
+});
+}
+
+// ========== MISE À JOUR PÉRIODE AVEC MOIS/ANNÉE ==========
+function majPeriodeAvecMois() {
+    if (!periodePicker) return;
+
+    const anneeEl = document.getElementById('annee');
+    const moisEl  = document.getElementById('mois');
+    if (!anneeEl || !moisEl) return;
+
+    const annee = anneeEl.value;
+    const mois  = moisEl.value; // 1-12
+
+    if (!annee || !mois) {
+        return;
+    }
+
+    const monthIndex = parseInt(mois, 10) - 1; // 0-11
+    const startDate  = new Date(annee, monthIndex, 1);
+    const endDate    = new Date(annee, monthIndex + 1, 0);
+
+    // Met à jour flatpickr (et donc la valeur de l'input)
+    periodePicker.setDate([startDate, endDate], true);
+}
+
+function initMoisListener() {
+    const anneeEl = document.getElementById('annee');
+    const moisEl  = document.getElementById('mois');
+
+    if (!anneeEl || !moisEl) return;
+
+    anneeEl.addEventListener('change', majPeriodeAvecMois);
+    moisEl.addEventListener('change', majPeriodeAvecMois);
+}
+
+
+// ========== VALIDATION ==========
+function validation() {
+
+let ok = true;
+
+const dojo   = document.getElementById('dojoId');
+const periode= document.getElementById('periode');
+const annee  = document.getElementById('annee');
+
+document.getElementById('errDojo').style.display="none";
+document.getElementById('errPeriode').style.display="none";
+
+dojo.classList.remove("input-error");
+periode.classList.remove("input-error");
+
+
+// dojo obligatoire
+if (!dojo.value) {
+    document.getElementById('errDojo').style.display="block";
+    dojo.classList.add("input-error");
+    ok = false;
+}
+
+
+// periode OU année
+if (!periode.value && !annee.value) {
+    document.getElementById('errPeriode').style.display="block";
+    periode.classList.add("input-error");
+    ok = false;
+}
+
+return ok;
+}
+
+
+// ========== GÉNÉRER ==========
+async function generer() {
+
+    if (!validation()) return;
+
+    const dojoId = document.getElementById('dojoId').value;
+    const annee  = document.getElementById('annee').value;
+    const limit  = document.getElementById('limit').value;
+    const periode= document.getElementById('periode').value;
+
+    let start = null;
+    let end   = null;
+
+    if (periode.includes(" to ")) {
+        [start, end] = periode.split(" to ");
+    }
+
+    const params = new URLSearchParams({
+        dojoId: dojoId,
+        limit: limit
+    });
+
+    if (start && end) {
+        params.append("periodeStart", start);
+        params.append("periodeEnd", end);
+    }
+    else if (annee) {
+        params.append("annee", annee);
+    }
+
+    const tbody = document.getElementById('resultats');
+
+    tbody.innerHTML =
+      '<tr><td colspan="5" class="text-center">Chargement...</td></tr>';
+
+    try {
+
+        const response =
+          await fetch(`${API}/api/adherents/generate-report?${params}`);
+
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="5" class="text-center">Aucun résultat.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.map(a => `
+        <tr>
+            <td>${a.nom.toUpperCase()}</td>
+            <td>${a.prenom}</td>
+            <td>${a.date_inscription}</td>
+            <td>${a.categorie_age || '-'}</td>
+            <td><strong>${a.Dojo?.nom || '-'}</strong></td>
+            <td class="text-center">
+   ${a.nbAbsences ?? 0}
+</td>
+
+        </tr>
+        `).join('');
+
+    } catch (e) {
+
+        console.error(e);
+
+        tbody.innerHTML =
+         '<tr><td colspan="5" class="text-center text-danger">Erreur serveur.</td></tr>';
+    }
+}
+
+
+// ========== DOJOS ==========
+async function chargerDojos(){
+const r=await fetch(`${API}/api/dojo_cours/get_dojos`);
+const d=await r.json();
+
+dojoId.innerHTML='<option value="">-- Choisir --</option>';
+
+d.forEach(x=>{
+ dojoId.innerHTML+=
+ `<option value="${x.id}">${x.nom}</option>`;
+});
+}
+
+
+// ========== ANNÉES ==========
+async function chargerAnnees(){
+const r=await fetch(`${API}/api/adherents/annees`);
+const a=await r.json();
+
+annee.innerHTML='<option value="">Choisir...</option>';
+
+a.forEach(x=>{
+ annee.innerHTML+=`<option>${x}</option>`;
+});
+}
+
+</script>
 
 {% endblock %}

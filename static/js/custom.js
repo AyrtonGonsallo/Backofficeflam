@@ -49,32 +49,43 @@ $(document).ready(function () {
     });
   }
 
-    $('#dateAjouterAppelForm').hide();
-    $('#showAjouterAppelFormBtn').click(function(e) {
-    console.log("ajouter cours")
-        e.preventDefault(); // empêche tout comportement par défaut du bouton
-        $('#dateAjouterAppelForm').slideToggle(); // affiche / cache avec animation
-    });
-
-    function filterCours() {
-        let selectedDojo = $('select.ajouter-add-dojo').length
-            ? $('select.ajouter-add-dojo').val()
-            : $('select.modifier-add-dojo').val();
-
-        console.log(selectedDojo)
-
+  // Filtrage des cours par dojo (ajouter/modifier adhérent)
+  function filterCoursesByDojo() {
+    const $dojoSelect = $('.ajouter-add-dojo, .modifier-add-dojo');
+    if ($dojoSelect.length && $('.form-check-all').length) {
+      // Fonction de filtrage
+      function applyFilter() {
+        const selectedDojoId = $dojoSelect.val();
+        
         // Cacher tous les cours
-        $('.form-add .form-check').hide();
-        $('.dojo-'+selectedDojo ).show();
+        $('.form-check-all .form-check').hide();
+        
+        if (selectedDojoId) {
+          // Afficher uniquement les cours du dojo sélectionné
+          $('.form-check-all .form-check.dojo-' + selectedDojoId).show();
+        }
+      }
+      
+      // Écouter les changements
+      $dojoSelect.on('change', applyFilter);
+      
+      // Appliquer le filtrage au chargement
+      applyFilter();
     }
+  }
 
-    // Au chargement si un dojo est déjà pré-sélectionné
-    filterCours();
+  // Filtrage des profs par dojo (modifier cours)
+  function filterProfsByDojo() {
+    const $dojoSelectModifier = $('.modifier-add-dojo');
+    if ($dojoSelectModifier.length && $('.form-check-all').length) {
+      // Cette fonctionnalité peut être ajoutée si nécessaire
+      // Pour l'instant, on garde tous les profs visibles
+    }
+  }
 
-    // Quand on change de dojo
-    $('select[name="dojoId"]').on('change', filterCours);
-
+  // Initialiser les filtres
+  filterCoursesByDojo();
+  filterProfsByDojo();
 
 });
-
 

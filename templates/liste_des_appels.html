@@ -3,31 +3,28 @@
 {% block title %}Accueil{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
-         <div style="border-bottom: black 3px solid; margin-bottom: 50px;">
-              <div style="display:flex;justify-content: space-between;">
-                <div class="text-left">
-                  <h1>{{cours.Dojo.nom}} {{cours.jour}} {{cours.heure[:5]}} </h1>
+ <div class="dashboard container-fluid page-adh">
+     <div class="col-12">
+         <div class="mb-4 pb-3" style="border-bottom: 2px solid rgba(0,0,0,.1);">
+              <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                  <h1 class="dashboard-section-title">{{cours.Dojo.nom}} {{cours.jour}} {{cours.heure[:5]}}</h1>
                 </div>
-                <div style="align-items: center;display: flex;justify-content: center;">
+                <div>
                   <a href="{{ url_for('adherents.ajouter_adherent') }}" class="d-none btn btn-dark">Ajouter un adhérent</a>
-
                 </div>
               </div>
-
          </div>
 
         {% from 'bootstrap5/table.html' import render_table %}
 
-         <h3>Liste des adhérents</h3>
+         <h3 class="mb-3">Liste des adhérents</h3>
 
-        <form method="get" class="mb-3 d-flex">
-            <input type="text" name="search_adherents" value="{{ search_adherents }}" class="form-control me-2" placeholder="Rechercher...">
+        <form method="get" class="mb-4 d-flex gap-2">
+            <input type="text" name="search_adherents" value="{{ search_adherents }}" class="form-control" placeholder="Rechercher...">
             <button class="btn btn-primary">Rechercher</button>
         </form>
+          <div class="table-responsive">
           <table class="table table-bordered table-hover">
             <thead>
                 <tr>
@@ -60,21 +57,8 @@
                         <td>{{ u.prenom }}</td>
                         <td>{{ u.categorie_age }}</td>
                         <td>{{ u.Dojo.nom }}</td>
-                        <td>
-                          {% if u.date_inscription %}
-                            {{ u.date_inscription[8:10] }}/{{ u.date_inscription[5:7] }}/{{ u.date_inscription[0:4] }}
-                          {% else %}
-                            -
-                          {% endif %}
-                        </td>
-
-                        <td>
-                            {% if u.telephone %}
-                                {{ u.telephone }}
-                            {% else %}
-                                -
-                              {% endif %}
-                        </td>
+                        <td>{{ u.date_inscription[8:10] }}/{{ u.date_inscription[5:7] }}/{{ u.date_inscription[0:4] }}</td>
+                        <td>{{ u.telephone }}</td>
 
                         <td>
                             <a href="{{ url_for('adherents.fiche_adherent', adherent_id=u.id) }}" class="btn btn-link">Fiche</a>
@@ -86,6 +70,7 @@
                 {% endfor %}
             </tbody>
           </table>
+          </div>
 
 
 
@@ -107,26 +92,7 @@
                 {% endfor %}
          </ul>
  {% endif %}
-
-         <div class="row">
-             <div class="col-2">
-                 <button id="showAjouterAppelFormBtn" class="btn btn-dark">Faire l'appel</button>
-             </div>
-         </div>
-
-
-        <form id="dateAjouterAppelForm"  method="get"
-              action="{{ url_for('adherents.liste_des_appels_par_cours', cours_id=cours.id) }}">
-            <div class="form-group">
-                <label for="dateInput">Sélectionnez la date :</label>
-                <input type="date" name="date_du_cours_a_ajouter" id="dateInput" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary mt-2">Ajouter</button>
-        </form>
-
         </div>
-     <div class="col-2">
-     </div>
 </div>
 
 {% endblock %}

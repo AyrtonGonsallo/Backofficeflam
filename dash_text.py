@@ -29,52 +29,58 @@ app.register_blueprint(adherents_routes.bp)
 
 @app.route('/tableau_de_bord', methods=['GET', 'POST'])
 def tableau_de_bord():
+
     user = session.get('user')
     if not user:
         return redirect(url_for('auth.login'))
     response = requests.get(f'{API_BASE_URL}/api/statistiques/get_historique')
     response.raise_for_status()
-    data = response.json()
+    appels_dict = response.json()
 
-    appels_consecutifs_sorted = []
+    appels_consecutifs_sorted = sorted(
+        appels_dict.values(),
+        key=lambda x: x.get('adherent', {}).get('nom', '').lower()
+    )
 
-    for adherent_id, info in data.items():
-        adherent = info['adherent']
-        appels_consecutifs_sorted.append({
-            'adherent_id': adherent['id'],
-            'nom': adherent['nom'],
-            'prenom': adherent['prenom'],
-            'dojo': adherent['Dojo']['nom'],
-            'total': info['total']
-        })
-
+    
     response = requests.get(f'{API_BASE_URL}/api/statistiques/presence_semaine_travail')
     response.raise_for_status()
     presence_semaine_travail = response.json() or {}
 
-    # Valeurs par défaut si null ou absentes
+    
+    presences_semaine = (
+        presence_semaine_travail.get("presencesSemaine")
+        or presence_semaine_travail.get("presences_semaine")
+        or 0
+    )
+    judokas_semaine = (
+        presence_semaine_travail.get("judokasDistinctsSemaine")
+        or presence_semaine_travail.get("judokas_distincts_semaine")
+        or 0
+    )
+
     presences_total = presence_semaine_travail.get("presencesTotal") or 0
     judokas_total = presence_semaine_travail.get("judokasDistinctsTotal") or 0
 
-    if judokas_total > 0:
-        presence_semaine_travail["presences_par_judokas"] = round(
-            presences_total / judokas_total, 1
-        )
+    if judokas_semaine and presences_semaine:
+        # ✅ moyenne sur la semaine
+        presence_semaine_travail["presences_par_judokas"] = round(presences_semaine / judokas_semaine, 1)
     else:
-        presence_semaine_travail["presences_par_judokas"] = 0
+        # ✅ fallback : moyenne globale
+        presence_semaine_travail["presences_par_judokas"] = round(presences_total / judokas_total, 1) if judokas_total else 0
 
-    # Deuxième appel API
+
     response = requests.get(f"{API_BASE_URL}/api/statistiques/presence_par_dojo")
     response.raise_for_status()
     presence_par_dojo = response.json() or []
 
-    # Trier en gérant les valeurs nulles
-    presence_par_dojo_sorted = sorted(
-        presence_par_dojo,
-        key=lambda x: (x.get("dojoName") or "").lower()
+    return render_template(
+        'tableau_de_bord.html',
+        user=user,
+        appels_consecutifs=appels_consecutifs_sorted,
+        presence_par_dojo=presence_par_dojo,
+        presence_semaine_travail=presence_semaine_travail
     )
-
-    return render_template('tableau_de_bord.html', user=user,appels_consecutifs=appels_consecutifs_sorted,presence_par_dojo=presence_par_dojo_sorted,presence_semaine_travail=presence_semaine_travail)
 
 
 @app.route('/adherents', methods=['GET', 'POST'])

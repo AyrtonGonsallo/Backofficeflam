@@ -1,109 +1,150 @@
 {% extends "base.html" %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}Génération QR Code{% endblock %}
 
 {% block content %}
- <div class="row container page-adh">
-     <div class="col-12">
-         <div>
-              <div class="flx-ttl">
-                <div class="text-left">
-                  <h1>Generation du QR code</h1>
-                </div>
+<div class="dashboard container-fluid page-adh">
 
-                  <!-- Formulaire invisible pour soumettre les IDs -->
-                <form id="qr-form" method="POST" action="{{ url_for('qrcode.generation_qrcode') }}">
-                  <input type="hidden" name="ids" id="selected-ids">
-                  <div style="align-items: center;display: flex;justify-content: center; margin-top: 10px;">
-                    <button type="submit" class="btn btn-dark">Générer le QR code</button>
-                  </div>
-                </form>
+  <!-- ================= HEADER ================= -->
+  <div class="row mb-4 align-items-center dashboard-header">
+    <div class="col-12 col-md-6 dashboard-header-left">
+      <h1 class="dashboard-section-title">Génération du QR code</h1>
+    </div>
+    <div class="col-12 col-md-6 dashboard-header-right">
+      <form method="get" class="d-flex search-form mb-3 mb-md-0">
+        <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="Rechercher...">
+        <button class="btn btn-primary">
+          <i class="bi bi-search"></i>
+        </button>
+      </form>
+    </div>
+  </div>
 
-              </div>
+  <!-- ================= BOUTON GÉNÉRER ================= -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <form id="qr-form" method="POST" action="{{ url_for('qrcode.generation_qrcode') }}" class="d-flex justify-content-end">
+        <input type="hidden" name="ids" id="selected-ids">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-qr-code-scan"></i>
+          Générer le QR code
+        </button>
+      </form>
+    </div>
+  </div>
 
-         </div>
+  <!-- MESSAGE FLASH -->
+  {% if message %}
+  <div class="alert alert-success mb-3">
+    {{ message }}
+  </div>
+  {% endif %}
 
-        {% from 'bootstrap5/table.html' import render_table %}
+  <!-- ========== SELECT ALL ========== -->
+  <div class="mb-3">
+    <input type="checkbox" id="select-all">
+    <label for="select-all"><strong>Tout sélectionner</strong></label>
+  </div>
 
-        <form method="get" class="mb-3 d-flex">
-            <input type="text" name="search" value="{{ search }}" class="form-control me-2" placeholder="Rechercher...">
-            <button class="btn btn-rech">Rechercher</button>
-        </form>
+  <!-- ================= LISTE DES ADHÉRENTS ================= -->
+  <div class="adh-grid qr-code">
+    {% for u in adherents %}
+      <div class="adh-card">
+        <div class="adh-header">
+          <div class="d-flex align-items-center d-flx-betwn">
 
-          <table class="table-adh qr-code table-bordered table-hover">
-            <thead>
-              <tr>
-                <th>
+            <a href="{{ url_for('adherents.fiche_adherent', adherent_id=u.id) }}">
+              <strong>{{ u.nom }} {{ u.prenom }}</strong>
+            </a>
 
-                </th>
-                {% set col_labels = {
-                    'id': 'ID',
-                    'nom': 'Nom',
-                    'cours': 'Cours',
-                    'prenom': 'Prénom',
-                    'telephone': 'Téléphone',
-                    'email':'Email',
-                    'date_inscription': "Date d'inscription",
-                    'categorie_age': "Catégorie d'âge",
-                    'Dojo': 'Dojo'
-                } %}
-                {% for col in ['nom', 'prenom','categorie_age','Dojo','date_inscription','cours'] %}
-                  <th>
-                    <a href="?search={{ search }}&sort={{ col }}&direction={{ 'asc' if direction == 'desc' else 'desc' }}">
-                      {{ col_labels[col] | capitalize }}
-                    </a>
-                  </th>
-                {% endfor %}
-              </tr>
-            </thead>
+            <input type="checkbox"
+                   class="row-checkbox"
+                   name="selected_ids"
+                   value="{{ u.id }}">
+          </div>
+        </div>
 
-            <tbody>
-              {% for u in adherents %}
-                <tr>
-                  <td><input type="checkbox" class="row-checkbox" name="selected_ids" value="{{ u.id }}"></td>
-                  <td><a href="{{ url_for('adherents.fiche_adherent', adherent_id=u.id) }}" >{{ u.nom }} </a></td>
-                  <td><a href="{{ url_for('adherents.fiche_adherent', adherent_id=u.id) }}" >{{ u.prenom }}</a></td>
-                  <td>{{ u.categorie_age }}</td>
-                  <td>{{ u.Dojo.nom }}</td>
-                  <td>
-                    {% if u.date_inscription %}
-                      {{ u.date_inscription[8:10] }}/{{ u.date_inscription[5:7] }}/{{ u.date_inscription[0:4] }}
-                    {% else %}
-                      -
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if u.Cours %}
-                      {% for cours in u.Cours %}
-                        <a href="{{ url_for('cours.modifier_cours', cours_id=cours.id) }}">
-                          {{ cours.jour }} {{cours.heure[:5]}}
-                        </a>
-                        <br>
-                      {% endfor %}
-                    {% else %}
-                      Aucun cours
-                    {% endif %}
-                  </td>
-                </tr>
+        <div class="adh-info">
+          <div><strong>Catégorie d'âge :</strong> {{ u.categorie_age }}</div>
+
+          <div><strong>Dojo :</strong> {{ u.Dojo.nom }}</div>
+
+          <div><strong>Date d'inscription :</strong>
+            {% if u.date_inscription %}
+              {{ u.date_inscription[8:10] }}/{{ u.date_inscription[5:7] }}/{{ u.date_inscription[0:4] }}
+            {% else %}
+              -
+            {% endif %}
+          </div>
+
+          <div><strong>Cours :</strong>
+            {% if u.Cours %}
+              {% for cours in u.Cours %}
+                <a href="{{ url_for('cours.modifier_cours', cours_id=cours.id) }}">
+                  {{ cours.jour }} {{ cours.heure[:5] }}
+                </a><br>
               {% endfor %}
-            </tbody>
-
-          </table>
-
-            <nav>
-              <ul class="pagination">
-                {% for p in range(1, pagination.pages + 1) %}
-                  <li class="page-item {% if p == pagination.page %}active{% endif %}">
-                    <a class="page-link" href="?page={{ p }}&search={{ search }}&sort={{ sort }}&direction={{ direction }}">{{ p }}</a>
-                  </li>
-                {% endfor %}
-              </ul>
-            </nav>
-
+            {% else %}
+              Aucun cours
+            {% endif %}
+          </div>
 
         </div>
-     <div class="col-2">
-     </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- ================= PAGINATION ================= -->
+  <nav class="mt-3">
+    <ul class="pagination d-flex justify-content-center">
+      {% for p in range(1, pagination.pages + 1) %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+          <a class="page-link"
+             href="?page={{ p }}&search={{ search }}&sort={{ sort }}&direction={{ direction }}">
+             {{ p }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+
 </div>
+
+<!-- ================= SCRIPT ================= -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const selectAll = document.getElementById("select-all");
+  const checkboxes = document.querySelectorAll(".row-checkbox");
+  const hiddenInput = document.getElementById("selected-ids");
+  const form = document.getElementById("qr-form");
+
+  // ✅ Tout cocher / décocher
+  selectAll.addEventListener("change", function () {
+    checkboxes.forEach(cb => {
+      cb.checked = selectAll.checked;
+    });
+  });
+
+  // ✅ Si une case décochée → décocher "tout"
+  checkboxes.forEach(cb => {
+    cb.addEventListener("change", function () {
+      if (!this.checked) {
+        selectAll.checked = false;
+      }
+    });
+  });
+
+  // ✅ Préparer les IDs avant envoi
+  form.addEventListener("submit", function () {
+    const ids = Array.from(checkboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.value);
+
+    hiddenInput.value = ids.join(",");
+  });
+
+});
+</script>
 
 {% endblock %}

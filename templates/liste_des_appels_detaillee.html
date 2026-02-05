@@ -3,100 +3,89 @@
 {% block title %}Accueil{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
-         <div style="border-bottom: black 3px solid; margin-bottom: 50px;">
-              <div style="display:flex;justify-content: space-between;">
-                <div class="text-left">
-                  <h1>{{cours.Dojo.nom}} {{cours.jour}} {{cours.heure[:5]}} {{ date[8:10] }}/{{ date[5:7] }}/{{ date[0:4] }}</h1>
-                </div>
+<div class="dashboard container-fluid page-adh page-appels">
 
-              </div>
+  <!-- ===== HEADER ===== -->
+  <div class="appels-header">
+    <div>
+      <h1>
+        {{ cours.Dojo.nom }} · {{ cours.jour }} {{ cours.heure[:5] }}
+      </h1>
+      <span class="appels-date">
+        {{ date[8:10] }}/{{ date[5:7] }}/{{ date[0:4] }}
+      </span>
+    </div>
 
-         </div>
+    <div class="appels-actions">
+      <a href="{{ url_for('appels.ajouter_appel') }}" class="btn-primary">
+        + Ajouter un appel
+      </a>
+      <a href="{{ url_for('adherents.liste_des_appels_par_cours', cours_id=cours.id) }}"
+         class="btn-secondary">
+        ← Retour
+      </a>
+    </div>
+  </div>
 
-        {% from 'bootstrap5/table.html' import render_table %}
+  <!-- ===== LISTE ===== -->
+  <div class="appels-section">
+    <h2>Liste des appels</h2>
 
+    <div class="appel-list">
 
+      {% for u in appels %}
+      <div class="appel-card">
 
-            <div style="" class="mt-5 mb-4">
-              <div style="display:flex;justify-content: space-between;">
-                <div class="text-left">
-                  <h3>Liste des appels</h3>
-                </div>
-                <div style="align-items: center;display: flex;justify-content: center;">
-                  <a href="{{ url_for('appels.ajouter_appel') }}" class="btn btn-dark truc_de_dev">Ajouter un appel</a>
-                    <a href="{{ url_for('adherents.liste_des_appels_par_cours', cours_id=cours.id) }}" class="btn btn-dark">Retour à la liste</a>
-                    <a href="{{ url_for('appels.supprimer_appel_par_date_cours',cours_id=cours.id,date=date) }}" class="btn btn-link">Supprimer tous</a>
-
-                </div>
-              </div>
-
-
-
-            </div>
-
-          <table class="table table-bordered table-hover">
-            <thead>
-                <tr>
-                    {% set col_labels2 = {
-                        'status': 'Status',
-                        'date': 'Date',
-                        'Adherent': "Adhérent",
-                        'Cour': "Cours",
-                    } %}
-
-                        {% for col in [ 'date','status','Adherent'] %}
-                        <th>
-                            <a href="?search_appels={{ search_appels }}&sort_appels={{ col }}&direction_appels={{ 'asc' if direction_appels == 'desc' else 'desc' }}">
-                                {{ col_labels2[col] |capitalize }}
-                            </a>
-                        </th>
-                    {% endfor %}
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for u in appels %}
-                    <tr>
-
-                        <td>{{ u.date[8:10] }}/{{ u.date[5:7] }}/{{ u.date[0:4] }}</td>
-                        <td>
-                            <a href="{{ url_for('appels.modifier_status_appel', appel_id=u.id,cours_id=u.coursId,adherent_id=u.adherentId,liste_des_appels_par_cours=true,date=date) }}" class="btn btn-link">
-                                {% if u.status %}
-                                  ✅
-                                {% else %}
-                                  ⛔
-                                {% endif %}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="{{ url_for('adherents.fiche_adherent', adherent_id=u.Adherent.id) }}" >
-                                {{ u.Adherent.nom }} {{ u.Adherent.prenom }} ({{ u.type }})
-                            </a>
-                        </td>
-
-
-
-                        <td>
-                           <a href="{{ url_for('appels.supprimer_appel', appel_id=u.id,cours_id=u.coursId,adherent_id=u.adherentId,liste_des_appels_par_cours=true) }}" class="btn btn-link">Supprimer</a>
-
-                        </td>
-
-                    </tr>
-                {% endfor %}
-            </tbody>
-          </table>
-
-
-
-
-
+        <div class="appel-left">
+          <div class="appel-name">
+            <a href="{{ url_for('adherents.fiche_adherent', adherent_id=u.Adherent.id) }}">
+              {{ u.Adherent.prenom }} {{ u.Adherent.nom }}
+            </a>
+          </div>
+          <div class="appel-type">
+            {{ u.type }}
+          </div>
         </div>
-     <div class="col-2">
-     </div>
+
+        <div class="appel-middle">
+          <span class="appel-date">
+            {{ u.date[8:10] }}/{{ u.date[5:7] }}/{{ u.date[0:4] }}
+          </span>
+        </div>
+
+        <div class="appel-status">
+          <a href="{{ url_for('appels.modifier_status_appel',
+            appel_id=u.id,
+            cours_id=u.coursId,
+            adherent_id=u.adherentId,
+            liste_des_appels_par_cours=true,
+            date=date) }}">
+            {% if u.status %}
+              <span class="status ok">Présent</span>
+            {% else %}
+              <span class="status ko">Absent</span>
+            {% endif %}
+          </a>
+        </div>
+
+        <div class="appel-actions">
+          <a class="danger"
+             href="{{ url_for('appels.supprimer_appel',
+               appel_id=u.id,
+               cours_id=u.coursId,
+               adherent_id=u.adherentId,
+               liste_des_appels_par_cours=true) }}">
+            Supprimer
+          </a>
+        </div>
+
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+
 </div>
+
 
 {% endblock %}

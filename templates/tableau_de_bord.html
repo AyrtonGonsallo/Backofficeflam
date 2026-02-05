@@ -1,93 +1,191 @@
 {% extends "base.html" %}
-
 {% block title %}Accueil{% endblock %}
 
 {% block content %}
+<div class="dashboard container-fluid">
 
+  <!-- ================= PRESENCES ================= -->
 
-     <div class="col-12">
+  <div class="presence-kpi-grid">
 
-        <div class="container text-center">
-          <div class="row">
-            <div class="col-12">
-               <div class="row dis-grid-3">
-                <div class="col-12 mt-2 mb-2 col-card">
-                    {% if presence_semaine_travail.semaineTravail %}
-                        <div class="card-b">
-                            <div class="card-header">
-                            Semaine {{presence_semaine_travail.semaineTravail}} (sur 36)
-                          </div>
-                          <div class="card-body">
-                            <p class="card-text">Nombre de présences par judoka depuis le début de la saison : {{presence_semaine_travail.presences_par_judokas}}</p>
-                            <p class="card-text">Présences semaine {{presence_semaine_travail.semaineTravail}} : {{presence_semaine_travail.pourcentageSemaine}}%</p>
-                            <p class="card-text">Présences depuis le début de saison : {{presence_semaine_travail.pourcentageTotal}}%</p>
+    {% if presence_semaine_travail.semaineTravail %}
+    <div class="presence-kpi primary">
+      <h2>Semaine {{ presence_semaine_travail.semaineTravail }}/36</h2>
 
-                            <a href="{{ url_for('presences.presences_par_semaines') }}" class="btn btn-link">Voir détail</a>
+      <div class="kpi-value">
+        {{ presence_semaine_travail.pourcentageSemaine }}%
+      </div>
 
-                          </div>
-                        </div>
-                    {% endif %}
+      <div class="kpi-sub">
+        Présence de la semaine
+      </div>
+
+      <a href="{{ url_for('presences.presences_par_semaines') }}"
+         class="dashboard-cta">
+        Voir le détail →
+      </a>
+    </div>
+    {% endif %}
+
+    <div class="presence-kpi">
+      <h2>Présence cumulée</h2>
+
+      <div class="kpi-value">
+        {{ presence_semaine_travail.pourcentageTotal }}%
+      </div>
+
+      <div class="kpi-sub">
+        Toutes périodes confondues
+      </div>
+    </div>
+
+    <div class="presence-stack">
+
+      <div class="presence-mini">
+        <h3>Présences / judoka</h3>
+        <div class="value">
+          {{ presence_semaine_travail.presences_par_judokas }}
+        </div>
+        <span>Moyenne individuelle</span>
+      </div>
+
+      <div class="presence-mini">
+        <h3>Régularité</h3>
+        <div class="value">
+          {{ presence_semaine_travail.pourcentageSemaine }}%
+        </div>
+        <span>Indice de participation</span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ===================================================== -->
+  <div class="row mt-4 g-3">
+
+    {% if presence_semaine_travail.semaineTravail %}
+    <div class="col-md-4 col-12 col-card">
+      <div class="card-b">
+        <div class="card-header">
+          Semaine {{presence_semaine_travail.semaineTravail}} (sur 36)
+        </div>
+
+        <div class="card-body">
+
+          <p class="card-text">
+            Nombre de présences par judoka depuis le début de la saison :
+            {{presence_semaine_travail.presences_par_judokas}}
+          </p>
+
+          <p class="card-text">
+            Présences semaine {{presence_semaine_travail.semaineTravail}} :
+            {{presence_semaine_travail.pourcentageSemaine}}%
+          </p>
+
+          <p class="card-text">
+            Présences depuis le début de saison :
+            {{presence_semaine_travail.pourcentageTotal}}%
+          </p>
+
+          <a href="{{ url_for('presences.presences_par_semaines') }}"
+             class="btn btn-link">
+            Voir détail
+          </a>
+
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ============ ABSENCES ============ -->
+    <div class="col-md-4 col-12 col-card">
+      <div class="card-b">
+        <div class="card-header">
+          Absences consécutives
+        </div>
+
+        <div class="list-wrapper">
+          <ul class="list-group list-group-flush" id="absence-list">
+            {% for appel in appels_consecutifs %}
+            <li class="list-group-item flex-between">
+                <div>
+                    <a href="{{ url_for('adherents.fiche_adherent', adherent_id=appel.adherent.id) }}">
+                        {{ appel.adherent.nom }} {{ appel.adherent.prenom }}
+                    </a> - {{ appel.adherent.Dojo.nom }}
                 </div>
-                <div class="col-12 mt-2 mb-2 col-card">
-                  <div class="card-b">
-                      <div class="card-header">
-                        Absences consécutives
-                      </div>
-                      <div class="list-wrapper">
-                        <ul class="list-group list-group-flush" id="absence-list">
-                            {% for appel in appels_consecutifs %}
-                            <li class="list-group-item flex-between"><div><a href="{{ url_for('adherents.fiche_adherent', adherent_id=appel.adherent_id) }}">{{ appel.nom }} {{ appel.prenom }}</a> - {{ appel.dojo }} </div> <div>({{ appel.total }})</div></li>
-                            {% endfor %}
-                        </ul>
-                        <div class="fade-out"></div> <!-- Dégradé bas -->
-                      </div>
-                      <div class="card-footer text-center">
-                        <button id="toggle-btn" class="btn btn-link">Voir plus</button>
-                      </div>
-                    </div>
+                <div>({{ appel.total}})</div>
+            </li>
+            {% endfor %}
+        </ul>
+
+          <div class="fade-out"></div>
+        </div>
+
+        <div class="card-footer text-center">
+          <button id="toggle-btn" class="btn btn-link">
+            Voir plus
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============ PAR DOJO ============ -->
+    <div class="col-md-4 col-12 col-card">
+      <div class="card-b">
+
+        <div class="card-header">
+          Présences par tranches d’âges et par Dojo
+        </div>
+
+        <div class="card-body">
+          <div class="accordion" id="accordionExample">
+
+            {% for pd in presence_par_dojo %}
+            <div class="accordion-item">
+
+              <h2 class="accordion-header" id="heading{{ pd.dojoId }}">
+                <button class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapse{{ pd.dojoId }}">
+
+                  {{ pd.dojoName }}
+                  - fréquentation globale :
+                  {{ pd.pourcentageTotal }} %
+
+                </button>
+              </h2>
+
+              <div id="collapse{{ pd.dojoId }}"
+                   class="accordion-collapse collapse"
+                   data-bs-parent="#accordionExample">
+
+                <div class="accordion-body">
+                  <ul class="list-group list-group-flush">
+
+                    {% for cat in pd.categories %}
+                    <li class="list-group-item flex-between">
+                      <span>{{ cat.categorie_age }}</span>
+                      <span class="badge bg-primary">
+                        {{ cat.pourcentage }} %
+                      </span>
+                    </li>
+                    {% endfor %}
+
+                  </ul>
                 </div>
-                   <div class="col-12 mt-2 mb-2 col-card">
-              <div class="card-b">
-                        <div class="card-header">
-                        Présences par tranches d’âges et par Dojo
-                      </div>
-                      <div class="card-body">
 
-                      <div class="accordion" id="accordionExample">
-                            {% for pd in presence_par_dojo %}
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="heading{{ pd.dojoId }}">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ pd.dojoId }}" aria-expanded="false" aria-controls="collapse{{ pd.dojoId }}">
-                                            {{ pd.dojoName }} - fréquentation globale : {{ pd.pourcentageTotal }} %
-                                        </button>
-                                    </h2>
-                                    <div id="collapse{{ pd.dojoId }}" class="accordion-collapse collapse" aria-labelledby="heading{{ pd.dojoId }}" data-bs-parent="#accordionExample">
-                                        <div class="accordion-body">
-                                            <ul class="list-group list-group-flush">
-                                                {% for cat in pd.categories %}
-                                                    <li class="list-group-item flex-between">
-                                                        {{ cat.categorie_age }} : {{ cat.pourcentage }}%
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-
-                    </div>
-            </div>
-          </div>
-                   </div>
               </div>
             </div>
+            {% endfor %}
 
-     </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+  </div>
 </div>
-</div>
-
-
-
 {% endblock %}

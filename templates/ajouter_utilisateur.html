@@ -3,16 +3,37 @@
 {% block title %}Ajouter un utilisateur{% endblock %}
 
 {% block content %}
- <div class="row">
-     <div class="col-2">
-     </div>
-     <div class="col-sm-8 col-12">
-        <h1>Ajouter un utilisateur</h1>
-         {% from 'bootstrap5/form.html' import render_form %}
-        {{ render_form(form) }}
-        </div>
-     <div class="col-2">
-     </div>
-</div>
+<div class="dashboard container-fluid page-adh page-add-user">
+  <div class="col-12">
 
+    <h1 class="dashboard-section-title text-center mb-4">Ajouter un utilisateur</h1>
+
+    <form method="POST" class="mx-auto" style="max-width: 700px;">
+      {{ form.hidden_tag() }}
+
+      <!-- Champs -->
+      <div class="row g-3 mb-4">
+        {% for field in form if field.name != 'submit' and field.type != 'HiddenField' %}
+          <div class="col-12 col-md-6">
+            {{ field(
+              class="form-control",
+              placeholder=field.label.text
+            ) }}
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Bouton -->
+      <div class="d-flex justify-content-end">
+        <button type="submit"
+                class="btn btn-primary px-4 py-2 d-flex align-items-center gap-2">
+          <i class="bi bi-plus-circle"></i>
+          {{ form.submit.label.text }}
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
 {% endblock %}

@@ -3,46 +3,47 @@
 {% block title %}Modifier un adhérent{% endblock %}
 
 {% block content %}
-<div class="row container form-add page-ajout-adh">
+<div class="dashboard container-fluid page-adh">
 
   <div class="col-12">
-    <h1 class="text-center mb-4">Modifier un adhérent</h1>
+    <h1 class="dashboard-section-title text-center mb-4">Modifier un adhérent</h1>
 
     <form method="POST">
-
       {{ form.hidden_tag() }}
+      
+      {% for fieldName, errorMessages in form.errors.items() %}
+          {% for err in errorMessages %}
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  {{ fieldName }} : {{ err }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+          {% endfor %}
+      {% endfor %}
 
-        {% for fieldName, errorMessages in form.errors.items() %}
-            {% for err in errorMessages %}
-                <div class="alert alert-danger">
-                    {{ fieldName }} : {{ err }}
-                </div>
-            {% endfor %}
-        {% endfor %}
-      <div class="row">
-        <div class="col-md-6 mb-3">
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
           {{ form.nom(class="form-control", placeholder="Nom") }}
         </div>
-        <div class="col-md-6 mb-3">
+        <div class="col-12 col-md-6">
           {{ form.prenom(class="form-control", placeholder="Prénom") }}
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
           {{ form.email(class="form-control", placeholder="Email") }}
         </div>
-        <div class="col-md-6 mb-3">
+        <div class="col-12 col-md-6">
           {{ form.telephone(class="form-control", placeholder="Téléphone") }}
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
           {{ form.date_inscription(class="form-control", type="date") }}
         </div>
 
-        <div class="col-md-6 mb-3">
+        <div class="col-12 col-md-6">
           <select name="{{ form.dojoId.name }}" class="form-select modifier-add-dojo">
             <option value="" disabled selected>Choisir un dojo</option>
             {% for value, label in form.dojoId.choices %}
@@ -52,15 +53,15 @@
         </div>
       </div>
 
-      <div class="row">
-      <div class="mb-3">
-  <select name="{{ form.categorie_age.name }}" class="form-select" required>
-    <option value="" disabled selected>Catégorie d'âge</option>
-    {% for value, label in form.categorie_age.choices %}
-      <option {% if value == form.categorie_age.data %}selected{% endif %} value="{{ value }}">{{ label }}</option>
-    {% endfor %}
-  </select>
-</div>
+      <div class="row g-3">
+        <div class="col-12 col-md-6 mb-3">
+          <select name="{{ form.categorie_age.name }}" class="form-select" required>
+            <option value="" disabled selected>Catégorie d'âge</option>
+            {% for value, label in form.categorie_age.choices %}
+              <option {% if value == form.categorie_age.data %}selected{% endif %} value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
         <div class="col-md-12 mb-3">
           <label class="form-label d-block">Cours</label>
@@ -80,8 +81,8 @@
         </div>
       </div>
 
-      <div class="text-center mt-4">
-        <button type="submit" class="btn btn-primary px-4 py-2" style="float:right;">{{ form.submit.label.text }}</button>
+      <div class="d-flex justify-content-end mt-4">
+        <button type="submit" class="btn btn-primary px-4 py-2">{{ form.submit.label.text }}</button>
       </div>
     </form>
   </div>

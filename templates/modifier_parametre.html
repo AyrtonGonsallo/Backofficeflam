@@ -3,27 +3,29 @@
 {% block title %}Modifier un parametre{% endblock %}
 
 {% block content %}
- <div class="row container">
-     <div class="col-12">
-        <h1 class="center">Modifier un dojo</h1>
+<div class="dashboard container-fluid page-adh">
+  <div class="col-12">
+    <h1 class="dashboard-section-title text-center mb-4">Modifier un paramètre</h1>
 
-        <form method="POST" class="col-6 grid-col" style="margin:auto;">
-            {{ form2.hidden_tag() }}
+    <form method="POST" class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        {{ form2.hidden_tag() }}
 
-            {% for field in form2 %}
-                {% if field.type != 'CSRFToken' and field.type != 'SubmitField' %}
-                    <div class="mb-3" style="max-width: 100%; width: 100%;">
-                        {{ field(class="form-control", placeholder=field.label.text) }}
-                    </div>
-                {% endif %}
-            {% endfor %}
-
-            <div class="">
-                {{ form2.submit(class="btn btn-primary") }}
+        {% for field in form2 %}
+          {% if field.type != 'CSRFToken' and field.type != 'SubmitField' %}
+            <div class="mb-3">
+              <label class="form-label">{{ field.label.text }}</label>
+              {{ field(class="form-control") }}
             </div>
-        </form>
+          {% endif %}
+        {% endfor %}
 
-     </div>
+        <div class="d-flex justify-content-end">
+          {{ form2.submit(class="btn btn-primary px-4 py-2") }}
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}
 

@@ -1,84 +1,106 @@
 {% extends "base.html" %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}Gestion des cours{% endblock %}
 
 {% block content %}
- <div class="row container page-adh">
+<div class="dashboard container-fluid page-adh">
 
-     <div class="col-12">
-         <div>
-              <div class="flx-ttl">
-                <div class="text-left">
-                  <h1>Gestion des cours</h1>
-                </div>
-                <div style="align-items: center;display: flex;justify-content: center;">
-                  <a href="{{ url_for('cours.ajouter_cours') }}" class="btn btn-dark">Ajouter un cours</a>
-                </div>
-              </div>
+  <!-- ================= HEADER ================= -->
+  <div class="row mb-4 align-items-center dashboard-header">
+    <div class="col-12 col-md-6 dashboard-header-left">
+      <h1 class="dashboard-section-title">Gestion des cours</h1>
+      <a href="{{ url_for('cours.ajouter_cours') }}" class="btn btn-primary btn-add">
+        <i class="bi bi-plus-circle"></i>
+        Ajouter un cours
+      </a>
+    </div>
 
-         </div>
+    <div class="col-12 col-md-6 dashboard-header-right">
+      <form method="get" class="d-flex search-form">
+        <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="Rechercher...">
+        <button class="btn btn-primary">
+          <i class="bi bi-search"></i>
+        </button>
+      </form>
+    </div>
+  </div>
 
-        {% from 'bootstrap5/table.html' import render_table %}
-
-        <form method="get" class="mb-3 d-flex">
-            <input type="text" name="search" value="{{ search }}" class="form-control me-2" placeholder="Rechercher...">
-            <button class="btn btn-rech">Rechercher</button>
-        </form>
-<div class="table-scroll-x">
-          <table class="table-adh cours table-bordered table-hover">
-            <thead>
-                <tr style="border-top: 0px !important;">
-                    {% for col in [ 'Dojo', 'jour', 'heure','catégorie d\'age','professeurs'] %}
-                        <th>
-                            <a href="?search={{ search }}&sort={{ col }}&direction={{ 'asc' if direction == 'desc' else 'desc' }}">
-                                {{ col|capitalize }}
-                            </a>
-                        </th>
-                    {% endfor %}
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for c in cours %}
-                    <tr>
-                        <td>{{ c.Dojo.nom }}</td>
-                        <td>{{ c.jour }}</td>
-                        <td>{{ c.heure[:5]}}</td>
-                        <td>{{ c.categorie_age }}</td>
-                        <td>
-                            {% if c.Utilisateurs %}
-                              {% for prof in c.Utilisateurs %}
-                                {{ prof.nom }} {{ prof.prenom }}<br>
-                              {% endfor %}
-                            {% else %}
-                              Aucun prof
-                            {% endif %}
-                        </td>
-                        <td>
-                            <a href="{{ url_for('adherents.liste_des_appels_par_cours', cours_id=c.id) }}" class="btn btn-link">Appels / Adhérents</a>
-                            <a href="{{ url_for('cours.modifier_cours', cours_id=c.id) }}" class="btn btn-link">Modifier</a>
-                            <a href="{{ url_for('cours.supprimer_cours', cours_id=c.id) }}" class="btn btn-link">Supprimer</a>
-
-                            </td>
-
-                    </tr>
-                {% endfor %}
-            </tbody>
-          </table>
-</div>
-            <nav>
-              <ul class="pagination">
-                {% for p in range(1, pagination.pages + 1) %}
-                  <li class="page-item {% if p == pagination.page %}active{% endif %}">
-                    <a class="page-link" href="?page={{ p }}&search={{ search }}&sort={{ sort }}&direction={{ direction }}">{{ p }}</a>
-                  </li>
-                {% endfor %}
-              </ul>
-            </nav>
-
-
+  <!-- ================= COURS CARDS ================= -->
+  <div class="adh-grid">
+    {% for c in cours %}
+    <div class="adh-card cours-card">
+      <div class="adh-header">
+        <div class="cours-badge">
+          <span class="badge-day">{{ c.jour }}</span>
+          <span class="badge-time">{{ c.heure[:5] }}</span>
         </div>
+        <div class="adh-actions">
+          <a href="{{ url_for('adherents.liste_des_appels_par_cours', cours_id=c.id) }}" title="Appels / Adhérents">
+            <i class="bi bi-people"></i>
+          </a>
+          <a href="{{ url_for('cours.modifier_cours', cours_id=c.id) }}" title="Modifier">
+            <i class="bi bi-pencil-square"></i>
+          </a>
+          <a href="{{ url_for('cours.supprimer_cours', cours_id=c.id) }}" title="Supprimer">
+            <i class="bi bi-trash"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="adh-info">
+        <div><strong>Dojo :</strong> {{ c.Dojo.nom }}</div>
+        <div><strong>Catégorie :</strong> {{ c.categorie_age }}</div>
+        <div><strong>Professeurs :</strong>
+          {% if c.Utilisateurs %}
+            {% for prof in c.Utilisateurs %}
+              <span class="badge-prof">{{ prof.nom }} {{ prof.prenom }}</span>
+            {% endfor %}
+          {% else %}
+            Aucun prof
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ================= PAGINATION ================= -->
+  <nav class="mt-3">
+    <ul class="pagination d-none d-md-flex justify-content-center">
+      {% if pagination.page > 1 %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ pagination.page-1 }}&search={{ search }}&sort={{ sort }}&direction={{ direction }}">Précédent</a>
+        </li>
+      {% endif %}
+
+      {% for p in range(1, pagination.pages + 1) %}
+        {% if p == 1 or p == pagination.pages or (p >= pagination.page-2 and p <= pagination.page+2) %}
+          <li class="page-item {% if p == pagination.page %}active{% endif %}">
+            <a class="page-link" href="?page={{ p }}&search={{ search }}&sort={{ sort }}&direction={{ direction }}">{{ p }}</a>
+          </li>
+        {% elif p == 2 or p == pagination.pages-1 %}
+          <li class="page-item disabled"><span class="page-link">…</span></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if pagination.page < pagination.pages %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ pagination.page+1 }}&search={{ search }}&sort={{ sort }}&direction={{ direction }}">Suivant</a>
+        </li>
+      {% endif %}
+    </ul>
+
+    <!-- Mobile pagination -->
+    <div class="pagination-modern d-flex d-md-none justify-content-center mt-3">
+      {% if pagination.page > 1 %}
+        <a href="?page={{ pagination.page-1 }}&search={{ search }}&sort={{ sort }}&direction={{ direction }}" class="btn btn-primary">&larr;</a>
+      {% endif %}
+      <span class="current-page">Page {{ pagination.page }} / {{ pagination.pages }}</span>
+      {% if pagination.page < pagination.pages %}
+        <a href="?page={{ pagination.page+1 }}&search={{ search }}&sort={{ sort }}&direction={{ direction }}" class="btn btn-primary">&rarr;</a>
+      {% endif %}
+    </div>
+  </nav>
 
 </div>
-
 {% endblock %}

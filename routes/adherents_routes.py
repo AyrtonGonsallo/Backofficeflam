@@ -3,8 +3,6 @@ from flask import Blueprint, render_template, flash, url_for, redirect, session,
 import requests
 import os
 
-from werkzeug.utils import secure_filename
-
 from forms.form_add_adherent import FormAddAdherent
 from forms.form_edit_adherent import FormEditAdherent
 
@@ -52,25 +50,12 @@ def adherents():
     sort = request.args.get('sort', 'id')
     direction = request.args.get('direction', 'asc')
     page = int(request.args.get('page', 1))
-    per_page = 100
+    per_page = 10
 
     try:
-        dojos = user['dojos']
-        dojo_ids = [d['id'] for d in dojos]
-
-        adherents = []
-
-        if user['role'] in ["professeur", "admin"]:
-            # Charger les cours pour chaque dojo
-            for dojo_id in dojo_ids:
-                response = requests.get(f"{API_BASE_URL}/api/adherents/get_adherents_by_dojo/{dojo_id}")
-                response.raise_for_status()
-                adherents += response.json()  # Concatène les cours
-
-        elif user['role'] == "super-admin":
-            response = requests.get(f"{API_BASE_URL}/api/adherents/get_adherents")
-            response.raise_for_status()
-            adherents = response.json()
+        response = requests.get(f'{API_BASE_URL}/api/adherents/get_adherents')
+        response.raise_for_status()
+        adherents = response.json()
 
         # Filtrage (recherche sur nom ou prénom)
         if search:
@@ -125,21 +110,6 @@ def liste_des_appels_par_cours(cours_id):
     user = session.get('user')
     if not user:
         return redirect(url_for('login'))
-
-    date = request.args.get('date_du_cours_a_ajouter')
-    if date:
-        print(date)
-        try:
-            # POST vers ton API avec json payload
-            response = requests.post(
-                f'{API_BASE_URL}/api/adherents/create_adherents_by_cours_with_appels',
-                json={'coursId': cours_id, 'date': date}
-            )
-            response.raise_for_status()
-            return redirect(url_for('adherents.liste_des_appels_par_cours', cours_id=cours_id))
-        except requests.RequestException as e:
-            flash(f"Erreur API : {e}", "danger")
-
 
     # Paramètres de recherche et tri
     search_adherents = request.args.get('search_adherents', '')
@@ -266,6 +236,7 @@ def liste_des_appels_par_cours_et_date(cours_id,date):
         return redirect(url_for('login'))
 
 
+
     # Paramètres de recherche et tri
     search_appels = request.args.get('search_appels', '')
     sort_appels = request.args.get('sort_appels', 'date')
@@ -348,10 +319,14 @@ def ajouter_adherent():
         cours = []
 
         # Remplir les choices dynamiquement
-    form.coursId.choices = [(str(c['id']), c['Dojo']['nom']+' '+c['jour']+' '+c['heure'][0:5]+' ('+c['categorie_age']+')') for c in cours]
-    dojo_classes = [
-        (str(c['id']),f"dojo-{c['Dojo']['id']}" ) for
-        c in cours]
+    form.coursId.choices = [
+    (
+        str(c['id']),
+        f"{c['Dojo']['nom']} – {c['jour']} {c['heure'][0:5]} – {c['categorie_age']}"
+    )
+    for c in cours
+]
+
 
 
     try:
@@ -362,6 +337,13 @@ def ajouter_adherent():
         dojos = []
 
     form.dojoId.choices = [(str(c['id']), c['nom']) for c in dojos]
+
+    # Préparer dojo_classes pour le filtrage des cours par dojo
+    dojo_classes = []
+    for c in cours:
+        dojo_id = str(c.get('dojoId', ''))
+        class_name = f"dojo-{dojo_id}"
+        dojo_classes.append((dojo_id, class_name))
 
     if form.validate_on_submit():
         # Traiter les données du formulaire ici
@@ -418,6 +400,33 @@ def modifier_adherent(adherent_id):
     if not user:
         return redirect(url_for('auth.login'))
     form = FormEditAdherent()
+    try:
+        response  = requests.get(f'{API_BASE_URL}/api/dojo_cours/get_all_cours')
+        response.raise_for_status()
+        cours = response.json()  # liste d'objets {id:..., nom:...}
+    except requests.RequestException:
+        cours = []
+
+        # Remplir les choices dynamiquement
+    form.coursId.choices = [(str(c['id']), c['jour']+' '+c['heure'][0:5]) for c in cours]
+
+
+    try:
+        response = requests.get(f'{API_BASE_URL}/api/dojo_cours/get_dojos')
+        response.raise_for_status()
+        dojos = response.json()  # liste d'objets {id:..., nom:...}
+    except requests.RequestException:
+        dojos = []
+
+    form.dojoId.choices = [(str(c['id']), c['nom']) for c in dojos]
+
+    # Préparer dojo_classes pour le filtrage des cours par dojo
+    dojo_classes = []
+    for c in cours:
+        dojo_id = str(c.get('dojoId', ''))
+        class_name = f"dojo-{dojo_id}"
+        dojo_classes.append((dojo_id, class_name))
+
     # Récupération de l' adherent à modifier
     try:
         response = requests.get(f'{API_BASE_URL}/api/adherents/get_adherent/{adherent_id}')
@@ -429,30 +438,6 @@ def modifier_adherent(adherent_id):
         adherent = None
         flash("Impossible de charger l'adherent.", "danger")
         return redirect(url_for('adherents.adherents'))  # ou autre page d'erreur
-
-    try:
-        response  = requests.get(f'{API_BASE_URL}/api/dojo_cours/get_all_cours')
-        response.raise_for_status()
-        cours = response.json()  # liste d'objets {id:..., nom:...}
-    except requests.RequestException:
-        cours = []
-
-        # Remplir les choices dynamiquement
-    form.coursId.choices = [(str(c['id']), c['Dojo']['nom']+' '+c['jour']+' '+c['heure'][0:5]+' ('+c['categorie_age']+')') for c in cours]
-    dojo_classes = [
-        (str(c['id']), f"dojo-{c['Dojo']['id']}") for
-        c in cours]
-
-    try:
-        response = requests.get(f'{API_BASE_URL}/api/dojo_cours/get_dojos')
-        response.raise_for_status()
-        dojos = response.json()  # liste d'objets {id:..., nom:...}
-    except requests.RequestException:
-        dojos = []
-
-    form.dojoId.choices = [((c['id']), c['nom']) for c in dojos]
-
-
 
 
     # Remplir le formulaire avec les données existantes (GET)
@@ -470,11 +455,9 @@ def modifier_adherent(adherent_id):
             'dojoId': adherent.get('dojoId'),
             'date_inscription': date_obj,  # format YYYY-MM-DD accepté
             'coursId': [cours['id'] for cours in adherent.get('Cours', [])],
-            'categorie_age': str(adherent.get('categorie_age'))
+            'categorie_age': adherent.get('categorie_age')
         }
         form.process(data=form_data)
-        print(adherent.get('categorie_age'))
-        print(adherent.get('dojoId'))
 
 
 
@@ -541,6 +524,9 @@ def supprimer_adherent(adherent_id):
     return redirect(url_for('adherents.adherents'))  # Redirection vers la liste des cours
 
 
+from collections import defaultdict
+import locale
+locale.setlocale(locale.LC_TIME, "fr_FR.UTF-8")
 
 
 @bp.route('/fiche_adherent/<int:adherent_id>', methods=['GET', 'POST'])
@@ -554,7 +540,7 @@ def fiche_adherent(adherent_id):
     sort_appels = request.args.get('sort_appels', 'date')
     direction_appels = request.args.get('direction_appels', 'desc')
     page_appels = int(request.args.get('page_appels', 1))
-    per_page_appels = 10
+    per_page_appels = 50
 
     # Récupération de l' adherent à modifier
     try:
@@ -611,3 +597,34 @@ def fiche_adherent(adherent_id):
         search_appels=search_appels,
         sort_appels=sort_appels,
         direction_appels=direction_appels,)
+
+@bp.route('/api/dojo_cours/get_dojos')
+def proxy_get_dojos():
+    try:
+        r = requests.get(f"{API_BASE_URL}/api/dojo_cours/get_dojos", timeout=5)
+        return r.json(), r.status_code
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
+@bp.route('/api/adherents/annees')
+def proxy_get_annees():
+    try:
+        r = requests.get(f"{API_BASE_URL}/api/adherents/annees", timeout=5)
+        return r.json(), r.status_code
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
+@bp.route('/api/adherents/generate-report')
+def proxy_generate_report():
+    try:
+        # on transfère tous les paramètres reçus
+        r = requests.get(
+            f"{API_BASE_URL}/api/adherents/generate-report",
+            params=request.args,
+            timeout=5
+        )
+        return r.json(), r.status_code
+    except Exception as e:
+        return {"error": str(e)}, 500

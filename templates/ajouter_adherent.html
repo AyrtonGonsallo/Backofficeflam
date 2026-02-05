@@ -3,83 +3,112 @@
 {% block title %}Ajouter un adhérent{% endblock %}
 
 {% block content %}
-<div class="row container page-ajout-adh form-add">
-  <div class="col-2"></div>
-  <div class="col-12">
-    <h1 class="center">Ajouter un adhérent</h1>
-    {% from 'bootstrap5/form.html' import render_form %}
+<div class="dashboard container-fluid page-adh">
 
-    <form method="POST">
-      {{ form.hidden_tag() }}
-        {% for fieldName, errorMessages in form.errors.items() %}
-            {% for err in errorMessages %}
-                <div class="alert alert-danger">
-                    {{ fieldName }} : {{ err }}
-                </div>
-            {% endfor %}
+  <!-- HEADER -->
+  <div class="row mb-4 dashboard-header align-items-center">
+    <div class="col-12">
+      <h1 class="dashboard-section-title text-center">Ajouter un adhérent</h1>
+    </div>
+  </div>
+
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    
+    {% for fieldName, errorMessages in form.errors.items() %}
+        {% for err in errorMessages %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ fieldName }} : {{ err }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         {% endfor %}
+    {% endfor %}
 
-      <!-- Nom + Prénom -->
-      <div class="row">
-        <div class="col-md-6">
+    <!-- ================= INFOS PERSONNELLES ================= -->
+    <div class="form-section">
+      <div class="form-section-title">Informations personnelles</div>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
           {{ form.nom(class="form-control", placeholder="Nom") }}
         </div>
-        <div class="col-md-6">
+
+        <div class="col-12 col-md-6">
           {{ form.prenom(class="form-control", placeholder="Prénom") }}
         </div>
-      </div>
 
-      <!-- Email + Téléphone -->
-      <div class="row">
-        <div class="col-md-6">
+        <div class="col-12 col-md-6">
           {{ form.email(class="form-control", placeholder="Email") }}
         </div>
-        <div class="col-md-6">
+
+        <div class="col-12 col-md-6">
           {{ form.telephone(class="form-control", placeholder="Téléphone") }}
         </div>
       </div>
+    </div>
 
-      <!-- Date d'inscription + Dojo -->
-      <div class="row">
-        <div class="col-md-6">
-          {{ form.date_inscription(class="form-control", type="date", placeholder="Date d'inscription") }}
+    <!-- ================= INFOS SPORTIVES ================= -->
+    <div class="form-section">
+      <div class="form-section-title">Informations sportives</div>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          {{ form.date_inscription(class="form-control", type="date") }}
         </div>
-        <div class="col-md-6">
+
+        <div class="col-12 col-md-4">
           {{ form.dojoId(class="form-select ajouter-add-dojo") }}
         </div>
+
+        <div class="col-12 col-md-4">
+          <select name="{{ form.categorie_age.name }}" class="form-select" required>
+            <option value="" disabled selected>Catégorie d'âge</option>
+            {% for value, label in form.categorie_age.choices %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
       </div>
+    </div>
 
-      <!-- Catégorie d’âge -->
-      <div class="mb-3">
-  <select name="{{ form.categorie_age.name }}" class="form-select" required>
-    <option value="" disabled selected>Catégorie d'âge</option>
-    {% for value, label in form.categorie_age.choices %}
-      <option value="{{ value }}">{{ label }}</option>
-    {% endfor %}
-  </select>
-</div>
+    <!-- ================= COURS (VERSION IDENTIQUE AU FICHIER 2) ================= -->
+    <div class="form-section">
+      <div class="form-section-title">Cours</div>
 
-      <!-- Cours -->
-      <div class="">
-         <label class="form-label d-block">Cours</label>
-        <div class="form-check-all">
-          {% for value, label in form.coursId.choices %}
-            {% set class_name = dojo_classes[loop.index0][1] %}
-          <div class="form-check {{class_name}}" >
-            <input class="form-check-input" type="checkbox"
+      <div class="form-check-all">
+
+        {% for value, label in form.coursId.choices %}
+
+          {% set class_name = dojo_classes[loop.index0][1] %}
+
+          <div class="form-check {{ class_name }}">
+
+            <input class="form-check-input"
+                   type="checkbox"
                    name="{{ form.coursId.name }}"
                    id="cours_{{ value }}"
                    value="{{ value }}">
-            <label class="form-check-label" for="cours_{{ value }}">{{ label }}</label>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
 
-      <!-- Submit -->
-      <button type="submit" class="btn btn-primary" style="float: right;">{{ form.submit.label.text }}</button>
-    </form>
-  </div>
-  <div class="col-2"></div>
+            <label class="form-check-label" for="cours_{{ value }}">
+              {{ label.split('–')[0] }} – {{ label.split('–')[1] }} ({{ label.split('–')[2] }})
+            </label>
+
+
+          </div>
+
+        {% endfor %}
+
+      </div>
+    </div>
+
+ 
+    <div class="form-actions d-flex justify-content-end mt-4">
+      <button type="submit" class="btn btn-primary px-4 py-2">
+        Enregistrer l’adhérent
+      </button>
+    </div>
+
+  </form>
+
 </div>
 {% endblock %}

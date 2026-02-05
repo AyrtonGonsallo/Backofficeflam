@@ -1,168 +1,119 @@
 {% extends "base.html" %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}Gestion des adhérents{% endblock %}
 
 {% block content %}
- <div class="row container page-adh">
-     <div class="col-12">
-         <div>
-              <div class="flx-ttl">
-                <div class="text-left">
-                  <h1>Gestion des adhérents</h1>
-                </div>
-                <div>
-                  <a href="{{ url_for('adherents.ajouter_adherent') }}" class="btn btn-dark">Ajouter un adhérent</a>
-                </div>
-              </div>
+<div class="dashboard container-fluid page-adh">
 
-         </div>
+  <!-- ================= HEADER ================= -->
+  <div class="row mb-4 align-items-center dashboard-header">
+    <div class="col-12 col-md-6 dashboard-header-left">
+      <h1 class="dashboard-section-title">Gestion des adhérents</h1>
+      <a href="{{ url_for('adherents.ajouter_adherent') }}" class="btn btn-primary btn-add">
+        <i class="bi bi-person-plus"></i>
+        Ajouter un adhérent
+      </a>
+    </div>
 
-        {% from 'bootstrap5/table.html' import render_table %}
+    <div class="col-12 col-md-6 dashboard-header-right">
+      <form method="get" class="d-flex search-form">
+        <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="Rechercher...">
+        <button class="btn btn-primary">
+          <i class="bi bi-search"></i>
+        </button>
+      </form>
+    </div>
+  </div>
 
-        <form method="get" class="mb-3 d-flex">
-            <input type="text" name="search" value="{{ search }}" class="form-control me-2" placeholder="Rechercher...">
-            <button class="btn btn-rech">Rechercher</button>
-        </form>
-<div class="table-scroll-x">
-          <table class="table-adh adher table-bordered table-hover">
-            <thead>
-                <tr style="border-top: 0px !important;">
-                    {% set col_labels = {
-                        'id': 'ID',
-                        'nom': 'Nom',
-                        'cours': 'Cours',
-                        'prenom': 'Prénom',
-                        'telephone': 'Téléphone',
-                        'email':'Email',
-                        'date_inscription': "Date d'inscription",
-                        'categorie_age': "Catégorie d'âge",
-                        'Dojo': 'Dojo'
-                    } %}
-                    {% for col in ['nom', 'prenom','categorie_age','Dojo','date_inscription','cours'] %}
-                        <th>
-                            <a href="?search={{ search }}&sort={{ col }}&direction={{ 'asc' if direction == 'desc' else 'desc' }}">
-                                {{ col_labels[col] |capitalize }}
-                            </a>
-                        </th>
-                    {% endfor %}
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for u in adherents %}
-                    <tr>
-                         <td>{{ u.nom }}</td>
-                        <td>{{ u.prenom }}</td>
-                        <td>{{ u.categorie_age }}</td>
-                        <td>{{ u.Dojo.nom }}</td>
-                        <td>
-                          {% if u.date_inscription %}
-                            {{ u.date_inscription[8:10] }}/{{ u.date_inscription[5:7] }}/{{ u.date_inscription[0:4] }}
-                          {% else %}
-                            -
-                          {% endif %}
-                        </td>
-                        <td>
-                            {% if u.Cours %}
-                                  {% for cours in u.Cours %}
-                                    <a href="{{ url_for('cours.modifier_cours', cours_id=cours.id) }}">
-                                        {{ cours.jour }} {{cours.heure[:5]}}
-                                    </a>
-                                    <br>
-                                  {% endfor %}
-                            {% else %}
-                              Aucun cours
-                            {% endif %}
-                        </td>
-                        <td>
-                           <a href="{{ url_for('adherents.fiche_adherent', adherent_id=u.id) }}" class="btn btn-link">Fiche</a>
-                            <a href="{{ url_for('adherents.modifier_adherent', adherent_id=u.id) }}" class="btn btn-link">Modifier</a>
-                            <a href="{{ url_for('adherents.supprimer_adherent', adherent_id=u.id) }}" class="btn btn-link">Supprimer</a>
-                        </td>
-
-                    </tr>
-                {% endfor %}
-            </tbody>
-          </table>
-</div>
-            <nav>
-              <ul class="pagination">
-
-                  {# Previous button #}
-                  {% if pagination.page > 1 %}
-                    <li class="page-item">
-                      <a class="page-link" href="?page={{ pagination.page - 1 }}&search={{ search }}&sort={{ sort }}&direction={{ direction }}">«</a>
-                    </li>
-                  {% endif %}
-
-                  {# Generate list of pages to show #}
-                  {% set pages_to_show = [] %}
-
-                  {# Always show first two pages #}
-                  {% for p in [1, 2] %}
-                    {% if p <= pagination.pages %}
-                      {% do pages_to_show.append(p) %}
-                    {% endif %}
-                  {% endfor %}
-
-                  {# Pages around current page (current-2 to current+2) #}
-                  {% for p in range(pagination.page - 2, pagination.page + 3) %}
-                    {% if 1 <= p <= pagination.pages %}
-                      {% do pages_to_show.append(p) %}
-                    {% endif %}
-                  {% endfor %}
-
-                  {# Last two pages #}
-                  {% for p in [pagination.pages - 1, pagination.pages] %}
-                    {% if p > 0 %}
-                      {% do pages_to_show.append(p) %}
-                    {% endif %}
-                  {% endfor %}
-
-                  {# Remove duplicates and sort #}
-                  {% set pages_to_show = pages_to_show | unique | sort %}
-
-                  {# Render pages with ellipsis #}
-                  {% set last_page = 0 %}
-                  {% for p in pages_to_show %}
-
-
-                    <li class="page-item {% if p == pagination.page %}active{% endif %}">
-                      <a class="page-link" href="?page={{ p }}&search={{ search }}&sort={{ sort }}&direction={{ direction }}">{{ p }}</a>
-                    </li>
-                  {% if p == pagination.page+2 %}
-                      <li class="page-item disabled"><span class="page-link">…</span></li>
-                    {% endif %}
-                    {% set last_page = p %}
-                  {% endfor %}
-
-                  {# Next button #}
-                  {% if pagination.page < pagination.pages %}
-                    <li class="page-item">
-                      <a class="page-link" href="?page={{ pagination.page + 1 }}&search={{ search }}&sort={{ sort }}&direction={{ direction }}">»</a>
-                    </li>
-                  {% endif %}
-
-                </ul>
-            </nav>
-         <div class="mt-4 mb-4">
-          <form method="POST" enctype="multipart/form-data">
-            <div class="input-group">
-              <input type="file" class="form-control" name="file" accept=".xlsx,.xls" required>
-              <button type="submit" name="import_excel" class="btn" style="background:var(--color-grey);"> Importer Excel</button>
-            </div>
-          </form>
-           <br>
-             <a  class="telechrg-btn" href="static/docs/import_flam.xlsx" target="_blank"> 📥 Télécharger le modèle</a>
+  <!-- ================= ADHERENTS CARDS ================= -->
+  <div class="adh-grid">
+    {% for u in adherents %}
+    <div class="adh-card">
+      <div class="adh-header">
+        <h3>{{ u.nom }} {{ u.prenom }}</h3>
+        <div class="adh-actions">
+          <a href="{{ url_for('adherents.fiche_adherent', adherent_id=u.id) }}" title="Voir"><i class="bi bi-eye"></i></a>
+          <a href="{{ url_for('adherents.modifier_adherent', adherent_id=u.id) }}" title="Modifier"><i class="bi bi-pencil-square"></i></a>
+          <a href="{{ url_for('adherents.supprimer_adherent', adherent_id=u.id) }}" title="Supprimer"><i class="bi bi-trash"></i></a>
         </div>
-
-
-
+      </div>
+      <div class="adh-info">
+        <div><strong>Catégorie d'âge:</strong> {{ u.categorie_age }}</div>
+        <div><strong>Dojo:</strong> {{ u.Dojo.nom }}</div>
+        <div><strong>Inscription:</strong>
+          {% if u.date_inscription %}
+            {{ u.date_inscription[8:10] }}/{{ u.date_inscription[5:7] }}/{{ u.date_inscription[0:4] }}
+          {% else %}-{% endif %}
         </div>
+        <div><strong>Cours:</strong>
+          {% if u.Cours %}
+            {% for cours in u.Cours %}
+              {{ cours.jour }} {{ cours.heure[:5] }}<br>
+            {% endfor %}
+          {% else %}
+            Aucun cours
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ================= PAGINATION ================= -->
+  <nav class="mt-3">
+    <ul class="pagination d-none d-md-flex justify-content-center">
+      {% if pagination.page > 1 %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ pagination.page-1 }}">Précédent</a>
+        </li>
+      {% endif %}
+
+      {% for p in range(1, pagination.pages + 1) %}
+        {% if p == 1 or p == pagination.pages or (p >= pagination.page-2 and p <= pagination.page+2) %}
+          <li class="page-item {% if p == pagination.page %}active{% endif %}">
+            <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+          </li>
+        {% elif p == 2 or p == pagination.pages-1 %}
+          <li class="page-item disabled"><span class="page-link">…</span></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if pagination.page < pagination.pages %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ pagination.page+1 }}">Suivant</a>
+        </li>
+      {% endif %}
+    </ul>
+
+    <!-- Mobile pagination -->
+    <div class="pagination-modern d-flex d-md-none justify-content-center mt-3">
+      {% if pagination.page > 1 %}
+        <a href="?page={{ pagination.page-1 }}" class="btn btn-primary">&larr;</a>
+      {% endif %}
+      <span class="current-page">Page {{ pagination.page }} / {{ pagination.pages }}</span>
+      {% if pagination.page < pagination.pages %}
+        <a href="?page={{ pagination.page+1 }}" class="btn btn-primary">&rarr;</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- ================= IMPORT / DOWNLOAD ================= -->
+  <div class="import-grid mt-4">
+    <form method="POST" enctype="multipart/form-data" class="d-grid-adh">
+      <input type="file" class="form-control me-2" name="file" accept=".xlsx,.xls" required>
+      <button type="submit" class="btn btn-secondary">
+        <i class="bi bi-file-earmark-arrow-up"></i>
+        Importer
+      </button>
+    </form>
+
+    <div class="text-end">
+      <a href="static/docs/import_flam.xlsx" target="_blank" class="btn btn-primary">
+        <i class="bi bi-file-earmark-arrow-down"></i>
+        Télécharger
+      </a>
+    </div>
+  </div>
 
 </div>
-
 {% endblock %}
-
-
-
