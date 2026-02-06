@@ -1628,11 +1628,17 @@ PAGE LOGIN MODAL
 .page-adh {
   position: relative;
   z-index: 1;
+
+}
+.dashboard,
+.page-adh {
+  margin-top: 20px;
+
 }
 
 /* Empêcher chevauchement avec navbar fixed */
 .main-wrapper {
-  margin-top: 80px;
+  margin-top: 40px;
   padding-top: 20px;
 }
 

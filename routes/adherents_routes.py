@@ -50,7 +50,7 @@ def adherents():
     sort = request.args.get('sort', 'id')
     direction = request.args.get('direction', 'asc')
     page = int(request.args.get('page', 1))
-    per_page = 10
+    per_page = 50
 
     try:
         response = requests.get(f'{API_BASE_URL}/api/adherents/get_adherents')
